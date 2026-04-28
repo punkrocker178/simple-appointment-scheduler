@@ -42,6 +42,11 @@ npm test
 npm run test:watch
 ```
 
+### Linting code
+```bash
+npm run lint
+```
+
 ### Format Code
 <!-- TODO: fill in manually -->
 Verify how code is formatted in this project. ESLint may be configured with formatting rules, or a separate formatter may be needed.

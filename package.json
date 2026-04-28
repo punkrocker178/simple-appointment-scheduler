@@ -9,7 +9,8 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "test": "vitest",
-    "test:watch": "vitest --watch"
+    "test:watch": "vitest --watch",
+    "npm run lint": "eslint --ext .ts,.vue ."
   },
   "dependencies": {
     "@nuxt/eslint": "^1.15.2",
