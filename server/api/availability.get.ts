@@ -28,16 +28,17 @@ export default defineEventHandler((event) => {
   for (let m = openMinutes; m <= lastStartMinutes; m += interval) {
     const hh = Math.floor(m / 60);
     const mm = m % 60;
-    // construct ISO datetime for the given local date/time
+    // construct local datetime for the given date/time
     const startLocal = new Date(`${date}T${pad(hh)}:${pad(mm)}:00`);
     const endLocal = new Date(startLocal.getTime() + duration * 60 * 1000);
-    const startISO = startLocal.toISOString();
-    const endISO = endLocal.toISOString();
+    // convert to Unix timestamps (timezone-agnostic)
+    const startMs = startLocal.getTime();
+    const endMs = endLocal.getTime();
 
-    const check = isSlotAvailable(serviceId, startISO, endISO);
+    const check = isSlotAvailable(serviceId, startMs, endMs);
     const slot: Slot = {
-      startTime: startISO,
-      endTime: endISO,
+      startTime: startMs,
+      endTime: endMs,
       available: !check.hasConflict,
       technicianId: check.assignedTechnicianId,
       bayId: check.assignedBayId,

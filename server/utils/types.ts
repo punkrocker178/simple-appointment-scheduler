@@ -19,8 +19,8 @@ export interface ServiceBay {
 }
 
 export interface Slot {
-  startTime: string // ISO string
-  endTime: string // ISO string
+  startTime: number // Unix timestamp in milliseconds
+  endTime: number // Unix timestamp in milliseconds
   available: boolean
   technicianId?: string
   bayId?: string
@@ -29,8 +29,8 @@ export interface Slot {
 export interface Appointment {
   id: string
   serviceId: string
-  startTime: string // ISO
-  endTime: string // ISO
+  startTime: number // Unix timestamp in milliseconds
+  endTime: number // Unix timestamp in milliseconds
   vehiclePlate: string
   vehicleMake?: string
   vehicleModel?: string

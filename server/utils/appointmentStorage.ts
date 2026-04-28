@@ -15,6 +15,6 @@ export function resetAppointments(): void {
   appointments.length = 0;
 }
 
-export function findOverlappingAppointments(startISO: string, endISO: string): Appointment[] {
-  return appointments.filter((a) => !(a.endTime <= startISO || a.startTime >= endISO));
+export function findOverlappingAppointments(startMs: number, endMs: number): Appointment[] {
+  return appointments.filter((a) => !(a.endTime <= startMs || a.startTime >= endMs));
 }

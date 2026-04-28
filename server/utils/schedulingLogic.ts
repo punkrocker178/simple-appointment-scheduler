@@ -2,16 +2,16 @@ import { SERVICES, TECHNICIANS, SERVICE_BAYS, OPERATING_HOURS, OPERATING_DAYS, S
 import { getAllAppointments } from './appointmentStorage';
 import type { ConflictCheckResult } from './types';
 
-function overlaps(aStartISO: string, aEndISO: string, bStartISO: string, bEndISO: string): boolean {
-  return !(aEndISO <= bStartISO || aStartISO >= bEndISO);
+function overlaps(aStartMs: number, aEndMs: number, bStartMs: number, bEndMs: number): boolean {
+  return !(aEndMs <= bStartMs || aStartMs >= bEndMs);
 }
 
-export function isSlotAvailable(serviceId: number, startISO: string, endISO: string): ConflictCheckResult {
+export function isSlotAvailable(serviceId: number, startMs: number, endMs: number): ConflictCheckResult {
   const service = SERVICES.find((s) => s.id === serviceId);
   if (!service) return { hasConflict: true, reason: 'Service not found' };
 
-  const start = new Date(startISO);
-  const end = new Date(endISO);
+  const start = new Date(startMs);
+  const end = new Date(endMs);
   if (isNaN(start.getTime()) || isNaN(end.getTime())) return { hasConflict: true, reason: 'Invalid date' };
 
   // Operating day check (0=Sunday, 1=Monday...)
@@ -40,14 +40,14 @@ export function isSlotAvailable(serviceId: number, startISO: string, endISO: str
   // find available technician
   const candidateTech = TECHNICIANS.find((tech) => {
     if (tech.skill !== service.requiredSkill) return false;
-    const busy = appointments.some((a) => a.technicianId === tech.id && overlaps(a.startTime, a.endTime, startISO, endISO));
+    const busy = appointments.some((a) => a.technicianId === tech.id && overlaps(a.startTime, a.endTime, startMs, endMs));
     return !busy;
   });
   if (!candidateTech) return { hasConflict: true, reason: 'No available qualified technician' };
 
   // find available bay
   const candidateBay = SERVICE_BAYS.find((bay) => {
-    const busy = appointments.some((a) => a.bayId === bay.id && overlaps(a.startTime, a.endTime, startISO, endISO));
+    const busy = appointments.some((a) => a.bayId === bay.id && overlaps(a.startTime, a.endTime, startMs, endMs));
     return !busy;
   });
   if (!candidateBay) return { hasConflict: true, reason: 'No available service bay' };
