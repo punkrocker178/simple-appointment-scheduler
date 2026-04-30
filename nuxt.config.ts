@@ -8,6 +8,47 @@ export default defineNuxtConfig({
     '@nuxt/test-utils',
     '@pinia/nuxt',
     '@vueuse/nuxt',
-    '@nuxtjs/tailwindcss'
-  ]
+    'vuetify-nuxt-module',
+  ],
+
+  css: [
+    '~/assets/styles/main.css',
+  ],
+
+  postcss: {
+    plugins: {
+      '@tailwindcss/postcss': {},
+    },
+  },
+  vuetify: {
+    moduleOptions: {
+      disableVuetifyStyles: true,
+      styles: { configFile: 'assets/styles/settings.scss' },
+    },
+    theme: {
+      defaultTheme: 'light',
+      utilities: false,
+      display: {
+        mobileBreakpoint: 'md',
+        thresholds: {
+          xs: 0,
+          sm: 600,
+          md: 960,
+          lg: 1280,
+          xl: 1920,
+          xxl: 2560,
+        },
+      },
+    },
+  },
+
+  vite: {
+    css: {
+      preprocessorOptions: {
+        scss: {
+          api: 'modern-compiler',
+        },
+      },
+    },
+  },
 });

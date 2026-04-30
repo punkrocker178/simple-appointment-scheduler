@@ -289,9 +289,23 @@ Nuxt automatically imports:
 - **Utils:** from `app/utils/` (auto-imported functions and constants)
 - **Stores:** from Pinia (use `useStoreName()` without imports)
 
-**Important:** Manual imports are still required for custom types and some edge cases. Always import types explicitly:
+**Import Path Aliases:**
+- `@/` or `~/` → `app/` directory (client-side code)
+- `#server/` → `server/` directory (server-side code and types)
+- `#app` → Nuxt core runtime
+- `~~` or `@@` → Project root
+
+**Important:** Manual imports are still required for custom types. Always import server types using `#server/` alias:
 ```typescript
+// ✅ Correct: Use #server/ for server types
+import type { Appointment, Service, Slot } from '#server/utils/types';
+
+// ❌ Wrong: @/ only maps to app/ directory
 import type { Appointment } from '@/server/utils/types';
+
+// ✅ Composables are auto-imported, no manual import needed
+const { services } = useServices();
+const appointment = await createAppointment(payload);
 ```
 
 ## 5. Repository Structure

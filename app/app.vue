@@ -1,5 +1,5 @@
 <template>
-  <div class="container mx-auto">
-    <h1>Welcome </h1>
+  <div class="min-h-screen bg-gray-50">
+    <NuxtPage />
   </div>
 </template>
