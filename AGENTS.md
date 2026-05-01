@@ -281,6 +281,25 @@ export const useAppointmentStore = defineStore('appointmentStore', () => {
 });
 ```
 
+### Frontend Architecture Reference
+
+This project uses a **Pinia-Centric Sequential Flow** architecture pattern. For a comprehensive guide on the frontend architecture, component hierarchy, state management, and the complete appointment booking flow, see [ARCHITECTURE.md](./ARCHITECTURE.md).
+
+**Key Principles:**
+- **Centralized State:** All booking data lives in `bookingStore` (no prop drilling, single source of truth)
+- **Route Guards:** Pages validate prerequisites on mount; users cannot skip steps via URL manipulation
+- **Component Purity:** Components receive data as props and emit actions; they never hold booking state
+- **Composables for API Logic:** API calls and caching are abstracted into composables; store orchestrates the flow
+- **Validation Computation:** `isBookingComplete` computed getter enforces required fields across the application
+
+**Quick Reference:**
+- Booking starts at `/booking-start` (Step 1: Customer & Vehicle)
+- `/availability` for date/time selection (Step 2)
+- `/confirmation` for review before submission (Step 3)
+- `/summary` shows booking confirmation (Step 4)
+
+Each page has a route guard checking prerequisites. The store manages all state transitions, and composables handle API integration. See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed diagrams, data flows, and implementation guidelines.
+
 ### Auto-Imports & Module Resolution
 
 Nuxt automatically imports:
