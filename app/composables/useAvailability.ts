@@ -16,25 +16,23 @@ import type { Slot } from '#server/utils/types';
 import { fetchAvailability } from './useApiClient';
 
 const slots = ref<Slot[]>([]);
-const isLoading = ref<boolean>(false);
 const error = ref<string | null>(null);
 const cache = new Map<string, Slot[]>();
 
 export function useAvailability() {
   const fetch = async (serviceId: string, date: string): Promise<void> => {
 
-    isLoading.value = true;
     error.value = null;
+    slots.value = [];
     try {
       const result = await fetchAvailability(serviceId, date);
+      //mock Network delay for better loading state testing
+      await new Promise(resolve => setTimeout(resolve, 500));
       slots.value = result;
     }
     catch (err) {
       error.value = (err as Error).message || 'Failed to fetch availability';
       slots.value = [];
-    }
-    finally {
-      isLoading.value = false;
     }
   };
 
@@ -45,7 +43,6 @@ export function useAvailability() {
 
   return {
     slots: computed(() => slots.value),
-    isLoading: computed(() => isLoading.value),
     error: computed(() => error.value),
     fetch,
     clearCache,

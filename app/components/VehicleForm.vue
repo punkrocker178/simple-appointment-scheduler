@@ -2,7 +2,7 @@
   <v-card class="p-6">
     <div class="text-lg font-semibold text-gray-900 mb-6">Vehicle Information</div>
 
-    <v-form class="space-y-4" @submit.prevent="handleSubmit">
+    <v-form class="space-y-4">
       <v-text-field
         v-model="form.plate"
         label="Registration Plate *"

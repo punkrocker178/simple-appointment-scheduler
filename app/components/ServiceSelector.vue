@@ -15,13 +15,12 @@
     </div>
 
     <div v-else class="space-y-3">
-      <v-radio-group>
-        <v-card v-for="service in store.services" :key="service.id"
-          class="cursor-pointer transition-all"
+      <v-radio-group :model-value="store.selectedServiceId">
+        <v-card v-for="service in store.services" :key="service.id" class="cursor-pointer transition-all mb-4"
           :class="{ 'border-2 border-blue-500': store.selectedServiceId === service.id }"
           @click="store.selectService(service.id)">
-          <div class="p-4">
-            <div class="flex items-start justify-between">
+          <div class="p-4 flex flex-col h-full">
+            <div class="flex items-start">
               <div class="flex-1">
                 <h3 class="font-semibold text-gray-900">{{ service.name }}</h3>
                 <p class="text-sm text-gray-600 mt-1">
@@ -31,7 +30,9 @@
                   Requires: {{ service.requiredSkill }}
                 </p>
               </div>
-              <v-radio :model-value="store.selectedServiceId" :value="service.id" class="ml-4" />
+              <div class="flex align-center h-[100%]">
+                <v-radio :value="service.id" class="accent-blue-500" />
+              </div>
             </div>
           </div>
         </v-card>

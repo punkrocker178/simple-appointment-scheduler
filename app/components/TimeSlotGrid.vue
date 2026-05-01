@@ -2,8 +2,8 @@
   <div class="space-y-3">
     <div class="text-lg font-semibold text-gray-900">Available Time Slots</div>
 
-    <div v-if="isLoading" class="py-6">
-      <v-progress-circular indeterminate />
+    <div v-if="isLoading" class="py-6 text-center">
+      <v-progress-circular indeterminate color="primary" />
     </div>
 
     <div v-else-if="slots.length === 0" class="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">

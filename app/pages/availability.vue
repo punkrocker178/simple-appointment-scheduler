@@ -47,16 +47,11 @@ const handleBack = (): void => {
       />
 
       <TimeSlotGrid
-        v-if="store.availableSlots.length > 0"
         :slots="store.availableSlots"
         :selected-slot="store.selectedSlot"
-        :loading="store.isLoading"
+        :is-loading="store.isLoading"
         @selected="handleSlotSelect"
       />
-
-      <div v-else-if="store.selectedDate && !store.isLoading" class="text-center py-8 text-gray-500">
-        No available slots for this date. Please select another date.
-      </div>
 
       <div class="flex justify-between">
         <button

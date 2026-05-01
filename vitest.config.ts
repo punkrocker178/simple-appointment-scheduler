@@ -8,7 +8,7 @@ export default defineConfig({
       await defineVitestProject({
         test: {
           name: 'universal-scheduler-unit-test',
-          include: ['test/*.{test,spec}.ts'],
+          include: ['test/**/*.{test,spec}.ts'],
           environment: 'nuxt',
           environmentOptions: {
             nuxt: {
