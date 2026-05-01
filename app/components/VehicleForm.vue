@@ -22,54 +22,48 @@
         label="Model"
         class="mb-4"
       />
-
-      <div class="flex gap-3 pt-4">
-        <v-btn
-          type="submit"
-          color="primary"
-          class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
-        >
-          Continue
-        </v-btn>
-      </div>
     </v-form>
   </v-card>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 interface Props {
-  plate?: string
-  make?: string
-  model?: string
+  store: ReturnType<typeof useBookingStore>
 }
 
-interface Emit {
-  (e: 'submitted', plate: string, make: string, model: string): void
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  plate: '',
-  make: '',
-  model: '',
-});
-
-const emit = defineEmits<Emit>();
+const props = defineProps<Props>();
 
 const form = ref({
-  plate: props.plate,
-  make: props.make,
-  model: props.model,
+  plate: props.store.vehicle.plate,
+  make: props.store.vehicle.make,
+  model: props.store.vehicle.model,
 });
 
 const rules = {
   required: (value: string) => !!value || 'Field is required',
 };
 
-const handleSubmit = (): void => {
-  if (form.value.plate.trim()) {
-    emit('submitted', form.value.plate, form.value.make, form.value.model);
-  }
-};
+// Watch form changes and update store
+watch(
+  () => form.value.plate,
+  (newPlate) => {
+    props.store.setVehicle(newPlate, form.value.make, form.value.model);
+  },
+);
+
+watch(
+  () => form.value.make,
+  (newMake) => {
+    props.store.setVehicle(form.value.plate, newMake, form.value.model);
+  },
+);
+
+watch(
+  () => form.value.model,
+  (newModel) => {
+    props.store.setVehicle(form.value.plate, form.value.make, newModel);
+  },
+);
 </script>

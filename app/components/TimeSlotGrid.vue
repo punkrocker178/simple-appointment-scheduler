@@ -15,7 +15,7 @@
         v-for="slot in slots"
         :key="slot.startTime"
         class="p-3 cursor-pointer hover:shadow-md transition-all"
-        :class="slot.available ? 'bg-white' : 'bg-gray-100 opacity-60 cursor-not-allowed'"
+        :class="slot.available ? (selectedSlot === slot ? 'border-2 border-blue-500 text-white' : 'bg-white') : 'bg-gray-100 opacity-60 cursor-not-allowed'"
         @click="select(slot)"
       >
         <div class="flex items-center justify-between">
@@ -46,9 +46,11 @@ withDefaults(defineProps<Props>(), {
   isLoading: false,
 });
 
-defineEmits<{
-  (e: 'select', slot: Slot): void
+const emit =  defineEmits<{
+  (e: 'selected', slot: Slot): void
 }>();
+
+const selectedSlot = ref<Slot | null>(null);
 
 function formatTime(iso: string): string {
   try {
@@ -62,8 +64,9 @@ function formatTime(iso: string): string {
 
 function select(slot: Slot) {
   if (!slot.available) return;
+  selectedSlot.value = slot;
   // emit select
   // @ts-ignore - use defineEmits typing above
-  emit('select', slot);
+  emit('selected', slot);
 }
 </script>

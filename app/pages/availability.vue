@@ -8,6 +8,7 @@ onMounted(() => {
 });
 
 const handleDateSelect = async (date: string): Promise<void> => {
+  console.log('Selected date:', date);
   await store.fetchAvailability(date);
 };
 
@@ -42,7 +43,7 @@ const handleBack = (): void => {
 
       <DatePicker
         :selected-date="store.selectedDate"
-        @select="handleDateSelect"
+        @selected="handleDateSelect"
       />
 
       <TimeSlotGrid
@@ -50,7 +51,7 @@ const handleBack = (): void => {
         :slots="store.availableSlots"
         :selected-slot="store.selectedSlot"
         :loading="store.isLoading"
-        @select="handleSlotSelect"
+        @selected="handleSlotSelect"
       />
 
       <div v-else-if="store.selectedDate && !store.isLoading" class="text-center py-8 text-gray-500">

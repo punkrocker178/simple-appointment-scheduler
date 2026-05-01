@@ -12,7 +12,7 @@
     </div>
 
     <div class="pt-6">
-      <v-btn color="primary" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg" @click="$emit('done')">Done</v-btn>
+      <v-btn color="primary" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg" @click="$emit('new-booking')">Done</v-btn>
     </div>
   </v-card>
 </template>

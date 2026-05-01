@@ -35,13 +35,7 @@ const handleBack = (): void => {
         :service="store.selectedService"
         :date="store.selectedDate"
         :vehicle="store.vehicle"
-      />
-
-      <CustomerForm
-        :name="store.customer.name"
-        :email="store.customer.email"
-        @update:name="(v) => store.setCustomer(v, store.customer.email)"
-        @update:email="(v) => store.setCustomer(store.customer.name, v)"
+        :customer="store.customer"
       />
 
       <div class="flex justify-between">

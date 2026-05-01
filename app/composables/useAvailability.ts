@@ -20,27 +20,14 @@ const isLoading = ref<boolean>(false);
 const error = ref<string | null>(null);
 const cache = new Map<string, Slot[]>();
 
-function getCacheKey(serviceId: string, date: string): string {
-  return `${serviceId}:${date}`;
-}
-
 export function useAvailability() {
   const fetch = async (serviceId: string, date: string): Promise<void> => {
-    const key = getCacheKey(serviceId, date);
-
-    // Return cached result if available
-    if (cache.has(key)) {
-      slots.value = cache.get(key) || [];
-      error.value = null;
-      return;
-    }
 
     isLoading.value = true;
     error.value = null;
     try {
       const result = await fetchAvailability(serviceId, date);
       slots.value = result;
-      cache.set(key, result);
     }
     catch (err) {
       error.value = (err as Error).message || 'Failed to fetch availability';

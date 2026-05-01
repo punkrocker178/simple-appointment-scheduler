@@ -17,21 +17,10 @@ const handleNext = (): void => {
     <h1 class="text-3xl font-bold mb-8">Book Your Service Appointment</h1>
     
     <div class="space-y-8">
-      <VehicleForm
-        :plate="store.vehicle.plate"
-        :make="store.vehicle.make"
-        :model="store.vehicle.model"
-        @update:plate="(v) => store.setVehicle(v, store.vehicle.make, store.vehicle.model)"
-        @update:make="(v) => store.setVehicle(store.vehicle.plate, v, store.vehicle.model)"
-        @update:model="(v) => store.setVehicle(store.vehicle.plate, store.vehicle.make, v)"
-      />
+      <CustomerForm :store="store" />
+      <VehicleForm :store="store" />
 
-      <ServiceSelector
-        :services="store.services"
-        :selected-id="store.selectedServiceId"
-        :loading="store.isLoading"
-        @select="store.selectService"
-      />
+      <ServiceSelector :store="store" />
 
       <div class="flex justify-end">
         <button
