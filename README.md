@@ -108,3 +108,6 @@ At **Phase 2**, I mostly verified that I can understand what the AI generated an
 - Anticipate the next steps
 
 At **Phase 3**, mostly are just conversational chats about the issue and how to fix that, no more feature planning here.
+
+# Additional information
+For further information, please refer to the Scenario A System Design.md file
