@@ -11,8 +11,9 @@ const handleSubmit = async (): Promise<void> => {
   try {
     await store.submitBooking();
     navigateTo('/summary');
-  } catch (err) {
+  } catch (err: unknown) {
     // Error is stored in store.error
+    console.error('Booking submission failed:', err);
   }
 };
 
@@ -31,7 +32,7 @@ const handleBack = (): void => {
 
     <div class="space-y-8">
       <ConfirmationPanel
-        :slot="store.selectedSlot"
+        :time-slot="store.selectedSlot"
         :service="store.selectedService"
         :date="store.selectedDate"
         :vehicle="store.vehicle"

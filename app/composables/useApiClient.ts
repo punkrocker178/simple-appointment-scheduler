@@ -14,9 +14,9 @@
 import type { Service, Slot, Appointment, AvailabilityResponse } from '#server/utils/types';
 
 export interface AppointmentPayload {
-  serviceId: string
-  startTime: string
-  endTime: string
+  serviceId: number 
+  startTime: number 
+  endTime: number 
   vehiclePlate: string
   vehicleMake?: string
   vehicleModel?: string
@@ -47,7 +47,7 @@ export async function fetchServices(): Promise<Service[]> {
 /**
  * Fetch available slots for a service and date
  */
-export async function fetchAvailability(serviceId: string, date: string): Promise<Slot[]> {
+export async function fetchAvailability(serviceId: number, date: string): Promise<Slot[]> {
   try {
     const response = await $fetch<AvailabilityResponse>('/api/availability', {
       query: {

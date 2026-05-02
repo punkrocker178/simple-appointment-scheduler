@@ -16,7 +16,8 @@
 
     <div v-else class="space-y-3">
       <v-radio-group :model-value="store.selectedServiceId">
-        <v-card v-for="service in store.services" :key="service.id" class="cursor-pointer transition-all mb-4"
+        <v-card 
+          v-for="service in store.services" :key="service.id" class="cursor-pointer transition-all mb-4 rounded-xl"
           :class="{ 'border-2 border-blue-500': store.selectedServiceId === service.id }"
           @click="store.selectService(service.id)">
           <div class="p-4 flex flex-col h-full">
@@ -42,7 +43,6 @@
 </template>
 
 <script setup lang="ts">
-import type { Service } from '#server/utils/types';
 
 interface Props {
   store: ReturnType<typeof useBookingStore>

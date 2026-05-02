@@ -1,5 +1,5 @@
 <template>
-  <v-card class="p-6 text-center">
+  <v-card class="p-6 text-center rounded-xl">
     <div class="text-2xl font-semibold text-green-700 mb-4">Booking Confirmed</div>
     <div class="mb-4">Reference: <span class="font-mono text-sm">{{ bookingReference }}</span></div>
 
@@ -20,7 +20,10 @@
 <script setup lang="ts">
 import type { Appointment } from '#server/utils/types';
 
-const props = withDefaults(defineProps<{ bookingReference?: string | null; appointment?: Appointment | null }>(), {
+defineEmits<{
+  (e: 'new-booking'): void
+}>();
+withDefaults(defineProps<{ bookingReference?: string | null; appointment?: Appointment | null }>(), {
   bookingReference: null,
   appointment: null,
 });

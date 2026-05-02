@@ -1,6 +1,6 @@
 <template>
   <v-card class="p-6">
-    <div class="text-lg font-semibold text-gray-900 mb-4">Your Details</div>
+    <div class="text-lg font-semibold text-gray-900 mb-4 rounded-xl">Your Details</div>
 
     <v-form class="space-y-4">
       <v-text-field
@@ -23,7 +23,7 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue';
-import { useBookingStore } from '@/app/stores/bookingStore';
+import type { useBookingStore } from '@/stores/bookingStore';
 
 interface Props {
   store: ReturnType<typeof useBookingStore>

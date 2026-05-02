@@ -9,7 +9,6 @@ import {
   withSetup,
   setupFetchMock,
   teardownFetchMock,
-  createMockSlot,
   createMockFetchResponse,
 } from '../testUtils';
 

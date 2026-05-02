@@ -37,7 +37,7 @@ import type { Service, Slot, Appointment } from '#server/utils/types';
 export const useBookingStore = defineStore('bookingStore', () => {
   // ============ State ============
   const services = ref<Service[]>([]);
-  const selectedServiceId = ref<string>('');
+  const selectedServiceId = ref<number | null>(null);
   const selectedDate = ref<string>('');
   const availableSlots = ref<Slot[]>([]);
   const selectedSlot = ref<Slot | null>(null);
@@ -89,7 +89,7 @@ export const useBookingStore = defineStore('bookingStore', () => {
     }
   };
 
-  const selectService = (id: string): void => {
+  const selectService = (id: number | null): void => {
     selectedServiceId.value = id;
     selectedDate.value = '';
     availableSlots.value = [];
@@ -143,7 +143,7 @@ export const useBookingStore = defineStore('bookingStore', () => {
     error.value = null;
     try {
       const response = await createAppointment({
-        serviceId: selectedServiceId.value,
+        serviceId: selectedServiceId.value!,
         startTime: selectedSlot.value!.startTime,
         endTime: selectedSlot.value!.endTime,
         vehiclePlate: vehicle.value.plate,
@@ -168,7 +168,7 @@ export const useBookingStore = defineStore('bookingStore', () => {
 
   const resetBooking = (): void => {
     services.value = [];
-    selectedServiceId.value = '';
+    selectedServiceId.value = null;
     selectedDate.value = '';
     availableSlots.value = [];
     selectedSlot.value = null;

@@ -1,5 +1,5 @@
 <template>
-  <v-card class="p-6">
+  <v-card class="p-6 rounded-xl">
     <div class="text-lg font-semibold text-gray-900 mb-6">Vehicle Information</div>
 
     <v-form class="space-y-4">

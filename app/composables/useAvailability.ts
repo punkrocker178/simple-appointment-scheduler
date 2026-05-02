@@ -20,7 +20,7 @@ const error = ref<string | null>(null);
 const cache = new Map<string, Slot[]>();
 
 export function useAvailability() {
-  const fetch = async (serviceId: string, date: string): Promise<void> => {
+  const fetch = async (serviceId: number, date: string): Promise<void> => {
 
     error.value = null;
     slots.value = [];

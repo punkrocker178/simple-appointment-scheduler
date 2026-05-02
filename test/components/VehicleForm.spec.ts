@@ -10,7 +10,6 @@ import { useBookingStore } from '~/stores/bookingStore';
 import {
   setupPinia,
   vuetifyStubs,
-  createMockBookingStoreState,
 } from '../testUtils';
 
 describe('VehicleForm Component', () => {

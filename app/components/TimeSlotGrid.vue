@@ -14,7 +14,7 @@
       <v-card
         v-for="slot in slots"
         :key="slot.startTime"
-        class="p-3 cursor-pointer hover:shadow-md transition-all"
+        class="p-3 cursor-pointer hover:shadow-md transition-all rounded-xl"
         :class="slot.available ? (selectedSlot === slot ? 'border-2 border-blue-500 text-white' : 'bg-white') : 'bg-gray-100 opacity-60 cursor-not-allowed'"
         @click="select(slot)"
       >
@@ -35,7 +35,6 @@
 
 <script setup lang="ts">
 import type { Slot } from '#server/utils/types';
-import { defineEmits, defineProps } from 'vue';
 
 interface Props {
   slots: Slot[]
@@ -52,13 +51,13 @@ const emit =  defineEmits<{
 
 const selectedSlot = ref<Slot | null>(null);
 
-function formatTime(iso: string): string {
+function formatTime(unix: number): string {
   try {
-    const d = new Date(iso);
+    const d = new Date(unix);
     return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
   catch {
-    return iso;
+    return unix.toString();
   }
 }
 
@@ -66,7 +65,6 @@ function select(slot: Slot) {
   if (!slot.available) return;
   selectedSlot.value = slot;
   // emit select
-  // @ts-ignore - use defineEmits typing above
   emit('selected', slot);
 }
 </script>

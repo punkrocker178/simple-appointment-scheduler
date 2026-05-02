@@ -15,7 +15,6 @@ import {
   setupFetchMock,
   teardownFetchMock,
   createMockService,
-  createMockSlot,
   createMockAppointment,
   createMockFetchResponse,
 } from '../testUtils';

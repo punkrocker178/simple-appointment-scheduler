@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { Slot } from '#server/utils/types';
 const store = useBookingStore();
 
 onMounted(() => {
@@ -12,7 +13,7 @@ const handleDateSelect = async (date: string): Promise<void> => {
   await store.fetchAvailability(date);
 };
 
-const handleSlotSelect = (slot: any): void => {
+const handleSlotSelect = (slot: Slot): void => {
   store.selectSlot(slot);
 };
 

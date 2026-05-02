@@ -3,7 +3,6 @@
  */
 
 import { createApp } from 'vue';
-import { ref, computed } from 'vue';
 import { createPinia, setActivePinia } from 'pinia';
 import { vi } from 'vitest';
 import type { Service, Slot, Appointment } from '#server/utils/types';

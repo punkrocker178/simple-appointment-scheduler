@@ -3,7 +3,7 @@
  * Tests slot rendering, selection, availability filtering, loading/empty states, and time formatting
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { mountSuspended } from '@nuxt/test-utils/runtime';
 import TimeSlotGrid from '~/components/TimeSlotGrid.vue';
 import { createMockSlot, vuetifyStubs } from '../testUtils';
