@@ -236,6 +236,7 @@ At **Phase 2**, I mostly verified that I can understand what the AI generated an
 At **Phase 3**, mostly are just conversational chats about the issue and how to fix that, no more feature planning here.
 
 ## Implementation details
+Please refer to ARCHITECTURE.md for the application structure and logic
 
 ## Future Enhancements
 
