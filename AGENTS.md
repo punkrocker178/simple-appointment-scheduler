@@ -9,6 +9,7 @@ The universal scheduler is a Nuxt 4 application that provides digital appointmen
 - TypeScript (strict mode)
 - Pinia for state management
 - Tailwind CSS for styling
+- Vuetify for UI components
 - Vitest for unit testing
 - ESLint + Prettier for code quality
 
@@ -358,10 +359,9 @@ server/
 public/                        — Static assets (never changes)
   robots.txt                   — SEO robots metadata
 test/                          — Vitest unit test files
-  composables.spec.ts          — Composable tests
-  stores.spec.ts               — Store tests
-  components.spec.ts           — Component tests
-  api.spec.ts                  — API route tests
+  composables/          — Composable tests
+  components/           — Component tests
+  utils/                — Testing low level functions and helper 
 .nuxt/                         — Build output (generated, do NOT commit)
 eslint.config.mjs              — ESLint configuration (flat config)
 nuxt.config.ts                 — Nuxt framework configuration
