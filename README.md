@@ -53,9 +53,11 @@ yarn preview
 
 ## Testing
 
+Tested components and composables are in `test/` directory
 ```bash
 npm run test
 ```
+
 
 ## AI Collboration
 This project was planned, implemented in collaboration with Generative AI.
