@@ -13,6 +13,8 @@ The universal scheduler is a Nuxt 4 application that provides digital appointmen
 - Vitest for unit testing
 - ESLint + Prettier for code quality
 
+**Backend integration:** Customer booking currently uses local Nitro mocks. Login + admin CRUD integration with the .NET API is tracked in [docs/FRONTEND_INTEGRATION_TRACKER.md](./docs/FRONTEND_INTEGRATION_TRACKER.md) (design: [docs/FRONTEND_INTEGRATION_PLAN.md](./docs/FRONTEND_INTEGRATION_PLAN.md)).
+
 ## 2. Build & Development Commands
 
 ### Install Dependencies

@@ -1,0 +1,174 @@
+# Frontend Integration — Progress Tracker
+
+**Last updated:** 2026-07-04  
+**Current phase:** F1 — Foundation (not started)  
+**Design doc:** [FRONTEND_INTEGRATION_PLAN.md](./FRONTEND_INTEGRATION_PLAN.md)  
+**Backend status:** [IMPLEMENTATION_PLAN.md](../../simple-appointment-scheduler-be/docs/IMPLEMENTATION_PLAN.md) (Phases 1–4 complete)
+
+Use this document to track frontend integration work. Update checkboxes and the phase summary when tasks land.
+
+### Status legend
+
+| Symbol | Meaning |
+|--------|---------|
+| ✅ | Done |
+| 🔶 | Partial — started but not fully meeting the phase goal |
+| ⬜ | Not started |
+| ↪ | Deferred or out of scope (note explains) |
+
+---
+
+## Progress overview
+
+| Phase | Name | Status | Notes |
+|-------|------|--------|-------|
+| F1 | Foundation | ⬜ Not started | Config, types, BFF client, auth store, middleware, auth proxy |
+| F2 | Login | ⬜ Not started | Login page, layout, auth bootstrap |
+| F3 | Admin shell | ⬜ Not started | Layout, nav, reusable components, `useAdminApi` |
+| F4a | Skills & Dealerships | ⬜ Not started | First entity CRUD pages |
+| F4b | Nested dealership resources | ⬜ Not started | Service types, bays, technicians |
+| F4c | Customers & Vehicles | ⬜ Not started | Staff-accessible customer management |
+| F5 | Error handling & UX | ⬜ Not started | ProblemDetails mapping, 401/403 flows |
+| F6 | Tests & docs | ⬜ Not started | Unit tests, ARCHITECTURE.md / STORES.md updates |
+| F7 | Booking flow migration | ↪ Deferred | Replace Nitro mocks with .NET BFF proxies |
+| F8 | Appointment admin | ↪ Deferred | Blocked on backend Phase 5 lifecycle APIs |
+
+---
+
+## Phase F1 — Foundation ⬜
+
+| Task | Status | Evidence |
+|------|--------|----------|
+| Add `runtimeConfig.apiBaseUrl` to `nuxt.config.ts` | ⬜ | — |
+| Add `.env.example` with `NUXT_API_BASE_URL` | ⬜ | — |
+| Create `app/types/api.ts` (auth + entity DTOs) | ⬜ | — |
+| Create `server/utils/backendClient.ts` | ⬜ | — |
+| Create `app/stores/authStore.ts` | ⬜ | — |
+| Create `app/composables/useAuth.ts` | ⬜ | — |
+| Create `app/middleware/auth.ts` | ⬜ | — |
+| Create `app/middleware/admin.ts` | ⬜ | — |
+| Create `server/api/auth/login.post.ts` | ⬜ | — |
+| Create `server/api/auth/me.get.ts` | ⬜ | — |
+| Update `docker-compose.yml` frontend `NUXT_API_BASE_URL` | ⬜ | — |
+
+---
+
+## Phase F2 — Login ⬜
+
+| Task | Status | Evidence |
+|------|--------|----------|
+| Create `app/layouts/default.vue` | ⬜ | — |
+| Update `app.vue` with `<NuxtLayout>` | ⬜ | — |
+| Create `app/pages/login.vue` | ⬜ | — |
+| Create `plugins/auth.client.ts` (token bootstrap) | ⬜ | — |
+| `test/stores/authStore.spec.ts` | ⬜ | — |
+| `test/pages/login.spec.ts` | ⬜ | — |
+
+**Exit criteria:** Admin user can log in against live .NET backend and land on `/admin`.
+
+---
+
+## Phase F3 — Admin shell ⬜
+
+| Task | Status | Evidence |
+|------|--------|----------|
+| Create `app/layouts/admin.vue` (sidebar, logout) | ⬜ | — |
+| Create `app/pages/admin/index.vue` | ⬜ | — |
+| Permission-gated nav (dealerships, skills, customers) | ⬜ | — |
+| `app/components/admin/AdminDataTable.vue` | ⬜ | — |
+| `app/components/admin/EntityFormDialog.vue` | ⬜ | — |
+| `app/components/admin/ConfirmDeleteDialog.vue` | ⬜ | — |
+| `app/components/admin/TimeRangePicker.vue` | ⬜ | — |
+| Create `app/composables/useAdminApi.ts` | ⬜ | — |
+| Register `authStore` in `STORES.md` | ⬜ | — |
+
+---
+
+## Phase F4 — Entity CRUD ⬜
+
+Build in dependency order (mirrors backend Phase 3).
+
+| # | Feature | Page | Proxy routes | Status |
+|---|---------|------|--------------|--------|
+| 1 | **Skill** | `admin/skills/index.vue` | `GET/POST /api/admin/skills`, `DELETE [id]` | ⬜ |
+| 2 | **Dealership** | `admin/dealerships/index.vue` | `GET/POST/PUT /api/admin/dealerships` | ⬜ |
+| 3 | **ServiceType** | `admin/dealerships/[id]/service-types.vue` | nested under dealership | ⬜ |
+| 4 | **ServiceBay** | `admin/dealerships/[id]/service-bays.vue` | nested under dealership | ⬜ |
+| 5 | **Technician** | `admin/dealerships/[id]/technicians.vue` | nested; `skillIds` on create/update | ⬜ |
+| 6 | **Customer** | `admin/customers/index.vue` | `GET/POST/PUT /api/admin/customers` | ⬜ |
+| 7 | **Vehicle** | `admin/customers/[id]/vehicles.vue` | nested under customer | ⬜ |
+
+**Per-feature checklist:**
+
+- [ ] Nitro proxy route(s)
+- [ ] `useAdminApi` method(s)
+- [ ] List table with loading/empty states
+- [ ] Create dialog
+- [ ] Edit dialog
+- [ ] Delete (where backend supports it)
+- [ ] Manual smoke test against live backend
+
+---
+
+## Phase F5 — Error handling & UX ⬜
+
+| Task | Status |
+|------|--------|
+| Map `ProblemDetails` to user-facing messages | ⬜ |
+| Global 401 handler → logout + redirect | ⬜ |
+| 403 permission denied UI | ⬜ |
+| Form validation (required, email, year) | ⬜ |
+| Loading/disabled states on save | ⬜ |
+
+---
+
+## Phase F6 — Tests & docs ⬜
+
+| Task | Status | Evidence |
+|------|--------|----------|
+| `useAdminApi` / proxy route tests | ⬜ | — |
+| Admin component tests | ⬜ | — |
+| Middleware tests | ⬜ | — |
+| Update `ARCHITECTURE.md` (auth + admin sections) | ⬜ | — |
+| Fix `STORES.md` registry | ⬜ | — |
+| Cross-link in backend `IMPLEMENTATION_PLAN.md` | ⬜ | — |
+
+---
+
+## Deferred phases
+
+### F7 — Booking flow migration ↪
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Proxy `GET /api/availability` to .NET | ↪ | Remap query params (`dealershipId`, `serviceTypeId`, `date`) |
+| Proxy `POST /api/appointments` to .NET | ↪ | Guid-based payload; customer/vehicle creation flow TBD |
+| Replace `fetchServices` with dealership service types | ↪ | Booking UX may need dealership selector |
+| Update `bookingStore` types | ↪ | `number` → `string` GUIDs |
+| Retire or gate mock `server/api/*` routes | ↪ | — |
+
+### F8 — Appointment admin ↪
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Daily schedule view | ↪ | `GET /api/dealerships/{id}/appointments?date=` |
+| Status transitions UI | ↪ | Blocked on backend Phase 5 |
+| Cancel appointment UI | ↪ | Blocked on backend Phase 5 |
+
+---
+
+## Recommended next session
+
+1. **F1** — `runtimeConfig`, `backendClient`, `authStore`, auth Nitro proxy routes.
+2. **F2** — Login page; verify against seeded admin (`admin@localhost`).
+3. Smoke test: login → empty admin shell with permission-gated nav.
+
+---
+
+## Related docs
+
+- [FRONTEND_INTEGRATION_PLAN.md](./FRONTEND_INTEGRATION_PLAN.md) — architecture and design decisions
+- [ARCHITECTURE.md](../ARCHITECTURE.md) — booking flow (to be extended)
+- [STORES.md](../STORES.md) — Pinia store registry
+- [AGENTS.md](../AGENTS.md) — frontend conventions
+- [Backend IMPLEMENTATION_PLAN.md](../../simple-appointment-scheduler-be/docs/IMPLEMENTATION_PLAN.md) — API availability by phase
