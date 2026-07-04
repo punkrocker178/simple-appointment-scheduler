@@ -1,6 +1,6 @@
 # Frontend–Backend Integration Plan
 
-**Status:** Not started  
+**Status:** F1 complete — F2 next  
 **Last updated:** 2026-07-04  
 **Tracker:** [FRONTEND_INTEGRATION_TRACKER.md](./FRONTEND_INTEGRATION_TRACKER.md)  
 **Related:** [ARCHITECTURE.md](../ARCHITECTURE.md), [AGENTS.md](../AGENTS.md), [backend IMPLEMENTATION_PLAN.md](../../simple-appointment-scheduler-be/docs/IMPLEMENTATION_PLAN.md)
@@ -65,7 +65,7 @@ flowchart LR
 
 | Environment | `NUXT_API_BASE_URL` |
 |-------------|---------------------|
-| Local dev (`dotnet run`) | `http://localhost:5210` |
+| Local dev (`dotnet run`) | `http://localhost:52100` |
 | Docker Compose (`full` profile) | `http://backend:52100` |
 
 ---
@@ -109,12 +109,12 @@ Add to `nuxt.config.ts`:
 
 ```typescript
 runtimeConfig: {
-  apiBaseUrl: process.env.NUXT_API_BASE_URL || 'http://localhost:5210',
+  apiBaseUrl: process.env.NUXT_API_BASE_URL || 'http://localhost:52100',
   public: { appName: 'Universal Scheduler' },
 }
 ```
 
-Add `.env.example` with `NUXT_API_BASE_URL=http://localhost:5210`.
+Add `.env.example` with `NUXT_API_BASE_URL=http://localhost:52100`.
 
 ### Shared API types
 

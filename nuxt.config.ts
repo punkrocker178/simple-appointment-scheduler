@@ -11,6 +11,13 @@ export default defineNuxtConfig({
     'vuetify-nuxt-module',
   ],
 
+  runtimeConfig: {
+    apiBaseUrl: process.env.NUXT_API_BASE_URL || 'http://localhost:52100',
+    public: {
+      appName: 'Universal Scheduler',
+    },
+  },
+
   css: [
     '~/assets/styles/main.css',
   ],
