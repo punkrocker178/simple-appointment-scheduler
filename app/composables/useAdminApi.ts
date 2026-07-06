@@ -26,7 +26,7 @@ import type {
   UpdateVehicleRequest,
   Vehicle,
 } from '~/types/api';
-import { ApiError, getApiErrorStatusCode, toApiError } from '~/utils/apiErrors';
+import { getApiErrorStatusCode, toApiError } from '~/utils/apiErrors';
 
 async function adminFetch<T>(url: string, options?: Record<string, unknown>): Promise<T> {
   try {
