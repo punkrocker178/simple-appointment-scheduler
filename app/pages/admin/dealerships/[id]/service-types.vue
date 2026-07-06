@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import type { CreateServiceTypeRequest, ServiceType, Skill, UpdateServiceTypeRequest } from '~/types/api';
+import EntityFormDialog from '~/components/admin/EntityFormDialog.vue';
+import ConfirmDeleteDialog from '~/components/admin/ConfirmDeleteDialog.vue';
 
 definePageMeta({
   layout: 'admin',
