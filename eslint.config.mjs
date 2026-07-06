@@ -5,6 +5,7 @@ export default withNuxt(
   {
     rules: {
       semi: ['error', 'always'],
+      'vue/valid-v-slot': 'off',
     },
   }
 );
