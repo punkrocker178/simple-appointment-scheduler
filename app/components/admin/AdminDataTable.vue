@@ -19,7 +19,13 @@ withDefaults(defineProps<Props>(), {
 </script>
 
 <template>
+  <v-skeleton-loader
+    v-if="loading && items.length === 0"
+    type="table"
+    class="rounded-lg border border-gray-200"
+  />
   <v-data-table
+    v-else
     :items="items"
     :headers="headers"
     :loading="loading"

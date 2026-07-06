@@ -1,120 +1,83 @@
 # Pinia Stores Documentation
 
-This document provides a registry and reference for all Pinia stores in the universal-scheduler project. Each store is documented with its purpose, state shape, getters, and actions.
-
-## Store Structure Template
-
-When creating a new Pinia store, use this template:
-
-```typescript
-import { defineStore } from 'pinia';
-
-/**
- * [Store Name] - Brief description of store purpose
- * 
- * **State:**
- * - property1: Description of property1
- * - property2: Description of property2
- * 
- * **Getters:**
- * - getter1: Description of what getter1 computes
- * 
- * **Actions:**
- * - setProperty1(value): Updates property1
- * - fetchData(): Async action to fetch data
- */
-export const useStoreName = defineStore('storeName', () => {
-  // State
-  const property1 = ref<Type>('initial value');
-  const property2 = ref<Type>([]);
-
-  // Getters
-  const getter1 = computed(() => {
-    // computed logic
-  });
-
-  // Actions
-  const setProperty1 = (value: Type) => {
-    property1.value = value;
-  };
-
-  const fetchData = async () => {
-    // API call or business logic
-  };
-
-  return {
-    // State
-    property1,
-    property2,
-    // Getters
-    getter1,
-    // Actions
-    setProperty1,
-    fetchData,
-  };
-});
-```
+This document provides a registry and reference for all Pinia stores in the universal-scheduler project.
 
 ## Active Stores
 
-### (No stores created yet)
+### `authStore` — `app/stores/authStore.ts`
 
-Add stores here as they are created. Follow the template above and update this file each time a new store is added.
+Manages JWT session metadata for admin/staff users. The JWT itself is stored in an httpOnly cookie set by the Nitro BFF; this store holds `email`, `role`, `permissions`, and `expiresAt` synced from `/api/auth/me`.
+
+| State | Type | Purpose |
+|-------|------|---------|
+| `expiresAt` | `string` | Token expiry (ISO) |
+| `email` | `string` | Signed-in user email |
+| `role` | `string` | Role name (Admin, Staff, …) |
+| `permissions` | `string[]` | Permission claims from `/api/auth/me` |
+| `isLoading` | `boolean` | Async auth operation in progress |
+| `error` | `string \| null` | Last auth error message |
+
+| Getter | Purpose |
+|--------|---------|
+| `isAuthenticated` | `true` when `expiresAt` is in the future |
+
+| Action | Purpose |
+|--------|---------|
+| `login(email, password)` | `POST /api/auth/login`, then `fetchMe()` |
+| `fetchMe()` | `GET /api/auth/me` — clears session on 401 |
+| `logout()` | `POST /api/auth/logout` + clear local state |
+| `hasPermission(name)` | Check if permission is in `permissions` |
+| `clearSession()` | Reset local state without API call |
+
+**Usage:** `const authStore = useAuthStore()` or `useAuth()` composable wrapper.
+
+---
+
+### `bookingStore` — `app/stores/bookingStore.ts`
+
+Central state for the customer booking flow (Nitro mocks). See [ARCHITECTURE.md](./ARCHITECTURE.md) for the full booking workflow.
+
+| State | Type | Purpose |
+|-------|------|---------|
+| `services` | `Service[]` | Available services catalog |
+| `selectedServiceId` | `number \| null` | Selected service |
+| `selectedDate` | `string` | Booking date (YYYY-MM-DD) |
+| `availableSlots` | `Slot[]` | Slots for selected date/service |
+| `selectedSlot` | `Slot \| null` | Chosen time slot |
+| `vehicle` | `{ plate, make?, model? }` | Vehicle info |
+| `customer` | `{ name, email }` | Customer contact |
+| `appointmentId` | `string \| null` | Created appointment ID |
+| `bookingReference` | `string \| null` | Confirmation reference |
+| `confirmation` | `Appointment \| null` | Full appointment after booking |
+| `isLoading` | `boolean` | API in progress |
+| `error` | `string \| null` | Last error |
+
+| Getter | Purpose |
+|--------|---------|
+| `selectedService` | Full `Service` for `selectedServiceId` |
+| `isBookingComplete` | All required booking fields filled |
+
+| Action | Purpose |
+|--------|---------|
+| `loadServices()` | Fetch service catalog |
+| `selectService(id)` | Set service; reset date/slots |
+| `selectDate(date)` | Set date; clear slot |
+| `fetchAvailability(date)` | Load slots |
+| `selectSlot(slot)` | Select time slot |
+| `setVehicle(...)` / `setCustomer(...)` | Update contact info |
+| `submitBooking()` | Create appointment |
+| `resetBooking()` | Clear all state |
 
 ---
 
 ## Guidelines for Store Creation
 
-1. **Location:** All stores live in `app/stores/` directory
-2. **File Naming:** Use `camelCase.ts` for store files (e.g., `appointmentStore.ts`, `vehicleStore.ts`)
-3. **Store ID:** Use a descriptive camelCase ID that matches the file name (e.g., `'appointmentStore'`)
-4. **JSDoc Comments:** Every store must include JSDoc describing state, getters, and actions for AI agents and developers
-5. **Composition API:** Use the Composition API pattern with `defineStore()` (not Options API)
-6. **Auto-import:** Stores are auto-imported via `@pinia/nuxt`, no need for manual imports in components
-7. **Usage in Components:** 
-   ```typescript
-   import { useAppointmentStore } from '#app';
-   
-   export default defineComponent({
-     setup() {
-       const appointmentStore = useAppointmentStore();
-       return { appointmentStore };
-     }
-   });
-   ```
-
-## Common Patterns
-
-### Async Actions with Error Handling
-```typescript
-const fetchAppointments = async () => {
-  try {
-    isLoading.value = true;
-    const response = await $fetch('/api/appointments');
-    appointments.value = response;
-  } catch (error) {
-    error.value = error.message;
-  } finally {
-    isLoading.value = false;
-  }
-};
-```
-
-### Computed Getters Filtering State
-```typescript
-const availableAppointments = computed(() => {
-  return appointments.value.filter(apt => apt.available);
-});
-```
-
-### Reset Store State
-```typescript
-const resetStore = () => {
-  appointments.value = [];
-  selectedAppointment.value = null;
-};
-```
+1. **Location:** `app/stores/`
+2. **Naming:** `camelCase.ts` matching store ID (e.g. `authStore.ts` → `defineStore('authStore', …)`)
+3. **JSDoc:** Document state, getters, and actions in the file header
+4. **Composition API:** Use `defineStore` with setup syntax (not Options API)
+5. **Registry:** Add new stores to this file when created
 
 ---
 
-**Last updated:** April 30, 2026
+**Last updated:** July 6, 2026

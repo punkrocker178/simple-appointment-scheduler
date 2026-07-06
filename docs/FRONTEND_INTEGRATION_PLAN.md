@@ -1,6 +1,6 @@
 # Frontend–Backend Integration Plan
 
-**Status:** F2 complete — F3 next  
+**Status:** F5–F6 complete — booking migration (F7) next  
 **Last updated:** 2026-07-06  
 **Tracker:** [FRONTEND_INTEGRATION_TRACKER.md](./FRONTEND_INTEGRATION_TRACKER.md)  
 **Related:** [ARCHITECTURE.md](../ARCHITECTURE.md), [AGENTS.md](../AGENTS.md), [backend IMPLEMENTATION_PLAN.md](../../simple-appointment-scheduler-be/docs/IMPLEMENTATION_PLAN.md)
