@@ -1,7 +1,7 @@
 # Frontend Integration — Progress Tracker
 
 **Last updated:** 2026-07-04  
-**Current phase:** F1 — Foundation (not started)  
+**Current phase:** F2 — Login (next)  
 **Design doc:** [FRONTEND_INTEGRATION_PLAN.md](./FRONTEND_INTEGRATION_PLAN.md)  
 **Backend status:** [IMPLEMENTATION_PLAN.md](../../simple-appointment-scheduler-be/docs/IMPLEMENTATION_PLAN.md) (Phases 1–4 complete)
 
@@ -22,7 +22,7 @@ Use this document to track frontend integration work. Update checkboxes and the 
 
 | Phase | Name | Status | Notes |
 |-------|------|--------|-------|
-| F1 | Foundation | ⬜ Not started | Config, types, BFF client, auth store, middleware, auth proxy |
+| F1 | Foundation | ✅ Done | Config, types, BFF client, auth store, middleware, auth proxy |
 | F2 | Login | ⬜ Not started | Login page, layout, auth bootstrap |
 | F3 | Admin shell | ⬜ Not started | Layout, nav, reusable components, `useAdminApi` |
 | F4a | Skills & Dealerships | ⬜ Not started | First entity CRUD pages |
@@ -35,21 +35,21 @@ Use this document to track frontend integration work. Update checkboxes and the 
 
 ---
 
-## Phase F1 — Foundation ⬜
+## Phase F1 — Foundation ✅
 
 | Task | Status | Evidence |
 |------|--------|----------|
-| Add `runtimeConfig.apiBaseUrl` to `nuxt.config.ts` | ⬜ | — |
-| Add `.env.example` with `NUXT_API_BASE_URL` | ⬜ | — |
-| Create `app/types/api.ts` (auth + entity DTOs) | ⬜ | — |
-| Create `server/utils/backendClient.ts` | ⬜ | — |
-| Create `app/stores/authStore.ts` | ⬜ | — |
-| Create `app/composables/useAuth.ts` | ⬜ | — |
-| Create `app/middleware/auth.ts` | ⬜ | — |
-| Create `app/middleware/admin.ts` | ⬜ | — |
-| Create `server/api/auth/login.post.ts` | ⬜ | — |
-| Create `server/api/auth/me.get.ts` | ⬜ | — |
-| Update `docker-compose.yml` frontend `NUXT_API_BASE_URL` | ⬜ | — |
+| Add `runtimeConfig.apiBaseUrl` to `nuxt.config.ts` | ✅ | `nuxt.config.ts` |
+| Add `.env.example` with `NUXT_API_BASE_URL` | ✅ | `.env.example` |
+| Create `app/types/api.ts` (auth + entity DTOs) | ✅ | `app/types/api.ts` |
+| Create `server/utils/backendClient.ts` | ✅ | `server/utils/backendClient.ts` |
+| Create `app/stores/authStore.ts` | ✅ | `app/stores/authStore.ts` |
+| Create `app/composables/useAuth.ts` | ✅ | `app/composables/useAuth.ts` |
+| Create `app/middleware/auth.ts` | ✅ | `app/middleware/auth.ts` |
+| Create `app/middleware/admin.ts` | ✅ | `app/middleware/admin.ts` |
+| Create `server/api/auth/login.post.ts` | ✅ | `server/api/auth/login.post.ts` |
+| Create `server/api/auth/me.get.ts` | ✅ | `server/api/auth/me.get.ts` |
+| Update `docker-compose.yml` frontend `NUXT_API_BASE_URL` | ✅ | `docker-compose.yml` |
 
 ---
 
@@ -159,8 +159,8 @@ Build in dependency order (mirrors backend Phase 3).
 
 ## Recommended next session
 
-1. **F1** — `runtimeConfig`, `backendClient`, `authStore`, auth Nitro proxy routes.
-2. **F2** — Login page; verify against seeded admin (`admin@localhost`).
+1. **F2** — Login page, default layout, auth bootstrap plugin.
+2. Verify login with seeded admin (`admin@example.com` / `adminpassword`).
 3. Smoke test: login → empty admin shell with permission-gated nav.
 
 ---
