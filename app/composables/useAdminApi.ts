@@ -2,6 +2,7 @@
  * useAdminApi - Typed client for admin CRUD via Nitro BFF proxies
  *
  * Stateless wrappers around /api/admin/* routes.
+ * Handles 401 (logout + redirect) and 403 (snackbar) globally.
  */
 import type {
   CreateCustomerRequest,
@@ -25,39 +26,30 @@ import type {
   UpdateVehicleRequest,
   Vehicle,
 } from '~/types/api';
-
-function extractErrorMessage(error: unknown): string {
-  if (error && typeof error === 'object') {
-    if ('data' in error) {
-      const data = (error as { data?: { detail?: string; message?: string } }).data;
-      if (data?.detail) {
-        return data.detail;
-      }
-      if (data?.message) {
-        return data.message;
-      }
-    }
-    if ('message' in error && typeof (error as { message: unknown }).message === 'string') {
-      return (error as { message: string }).message;
-    }
-  }
-  return 'Request failed.';
-}
+import { ApiError, getApiErrorStatusCode, toApiError } from '~/utils/apiErrors';
 
 async function adminFetch<T>(url: string, options?: Record<string, unknown>): Promise<T> {
   try {
     return await $fetch<T>(url, options as Parameters<typeof $fetch>[1]);
   }
   catch (error: unknown) {
-    const statusCode = error && typeof error === 'object' && 'statusCode' in error
-      ? (error as { statusCode: number }).statusCode
-      : undefined;
+    const statusCode = getApiErrorStatusCode(error);
+    const authStore = useAuthStore();
+    const { showError } = useAppNotification();
+
     if (statusCode === 401) {
-      const authStore = useAuthStore();
-      authStore.clearSession();
+      await authStore.logout();
       await navigateTo('/login');
+      throw toApiError(error);
     }
-    throw new Error(extractErrorMessage(error));
+
+    const apiError = toApiError(error);
+
+    if (statusCode === 403) {
+      showError(apiError.message);
+    }
+
+    throw apiError;
   }
 }
 

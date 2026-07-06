@@ -1,21 +1,11 @@
 import type { H3Event } from 'h3';
-import type { ProblemDetails } from '~/types/api';
+import { extractApiErrorMessage } from '~/utils/apiErrors';
 import { getTokenFromCookies } from './authCookies';
 
 export interface BackendFetchOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
   body?: unknown;
   headers?: Record<string, string>;
-}
-
-function extractErrorMessage(data: unknown, fallback: string): string {
-  if (data && typeof data === 'object' && 'detail' in data) {
-    const detail = (data as ProblemDetails).detail;
-    if (typeof detail === 'string' && detail.length > 0) {
-      return detail;
-    }
-  }
-  return fallback;
 }
 
 export async function backendFetch<T>(
@@ -43,8 +33,8 @@ export async function backendFetch<T>(
         data?: unknown;
       };
       const statusCode = fetchError.statusCode ?? 500;
-      const message = extractErrorMessage(
-        fetchError.data,
+      const message = extractApiErrorMessage(
+        { data: fetchError.data, statusMessage: fetchError.statusMessage },
         fetchError.statusMessage ?? 'Request failed.',
       );
       throw createError({ statusCode, message });

@@ -1,7 +1,7 @@
 # Frontend Integration — Progress Tracker
 
 **Last updated:** 2026-07-06  
-**Current phase:** F5 — Error handling & UX (next)  
+**Current phase:** F7 — Booking flow migration (deferred)  
 **Design doc:** [FRONTEND_INTEGRATION_PLAN.md](./FRONTEND_INTEGRATION_PLAN.md)  
 **Backend status:** [IMPLEMENTATION_PLAN.md](../../simple-appointment-scheduler-be/docs/IMPLEMENTATION_PLAN.md) (Phases 1–4 complete)
 
@@ -28,8 +28,8 @@ Use this document to track frontend integration work. Update checkboxes and the 
 | F4a | Skills & Dealerships | ✅ Done | CRUD pages wired to live API |
 | F4b | Nested dealership resources | ✅ Done | Service types, bays, technicians |
 | F4c | Customers & Vehicles | ✅ Done | Staff-accessible customer management |
-| F5 | Error handling & UX | ⬜ Not started | ProblemDetails mapping, 401/403 flows |
-| F6 | Tests & docs | ⬜ Not started | Unit tests, ARCHITECTURE.md / STORES.md updates |
+| F5 | Error handling & UX | ✅ Done | ProblemDetails mapping, 401/403 flows, validators, skeletons |
+| F6 | Tests & docs | ✅ Done | Unit tests, ARCHITECTURE.md / STORES.md updates |
 | F7 | Booking flow migration | ↪ Deferred | Replace Nitro mocks with .NET BFF proxies |
 | F8 | Appointment admin | ↪ Deferred | Blocked on backend Phase 5 lifecycle APIs |
 
@@ -83,7 +83,7 @@ Use this document to track frontend integration work. Update checkboxes and the 
 | Create `app/composables/useAdminApi.ts` | ✅ | `app/composables/useAdminApi.ts` |
 | `server/utils/authenticatedBackendFetch.ts` | ✅ | `server/utils/authenticatedBackendFetch.ts` |
 | `server/api/admin/**` proxy routes (22 files) | ✅ | `server/api/admin/` |
-| Register `authStore` in `STORES.md` | ⬜ | Deferred to F6 |
+| Register `authStore` in `STORES.md` | ✅ | `STORES.md` |
 
 ---
 
@@ -113,28 +113,28 @@ Build in dependency order (mirrors backend Phase 3).
 
 ---
 
-## Phase F5 — Error handling & UX ⬜
-
-| Task | Status |
-|------|--------|
-| Map `ProblemDetails` to user-facing messages | 🔶 Partial — per-page alerts + `useAdminApi` |
-| Global 401 handler → logout + redirect | 🔶 Partial — `useAdminApi` clears session on 401 |
-| 403 permission denied UI | ⬜ |
-| Form validation (required, email, year) | 🔶 Partial — inline on CRUD forms |
-| Loading/disabled states on save | ✅ |
-
----
-
-## Phase F6 — Tests & docs ⬜
+## Phase F5 — Error handling & UX ✅
 
 | Task | Status | Evidence |
 |------|--------|----------|
-| `useAdminApi` / proxy route tests | ⬜ | — |
-| Admin component tests | ⬜ | — |
-| Middleware tests | ⬜ | — |
-| Update `ARCHITECTURE.md` (auth + admin sections) | ⬜ | — |
-| Fix `STORES.md` registry | ⬜ | — |
-| Cross-link in backend `IMPLEMENTATION_PLAN.md` | ⬜ | — |
+| Map `ProblemDetails` to user-facing messages | ✅ | `app/utils/apiErrors.ts` |
+| Global 401 handler → logout + redirect | ✅ | `useAdminApi.ts`, `authStore.ts` |
+| 403 permission denied UI | ✅ | `/forbidden`, admin middleware, snackbar |
+| Form validation (required, email, year) | ✅ | `app/utils/validators.ts` |
+| Loading skeletons; disable submit while saving | ✅ | `AdminDataTable.vue`, `EntityFormDialog.vue` |
+
+---
+
+## Phase F6 — Tests & docs ✅
+
+| Task | Status | Evidence |
+|------|--------|----------|
+| `useAdminApi` / proxy route tests | ✅ | `test/composables/useAdminApi.spec.ts`, `test/server/authenticatedBackendFetch.spec.ts` |
+| Middleware tests | ✅ | `test/middleware/middleware.spec.ts` |
+| `apiErrors` / `validators` tests | ✅ | `test/utils/apiErrors.spec.ts`, `test/utils/validators.spec.ts` |
+| Update `ARCHITECTURE.md` (auth + admin sections) | ✅ | `ARCHITECTURE.md` |
+| Fix `STORES.md` registry | ✅ | `STORES.md` |
+| Cross-link in backend `IMPLEMENTATION_PLAN.md` | ✅ | backend `docs/IMPLEMENTATION_PLAN.md` |
 
 ---
 
@@ -162,16 +162,15 @@ Build in dependency order (mirrors backend Phase 3).
 
 ## Recommended next session
 
-1. **F5** — Global 403 handling, polish ProblemDetails mapping.
-2. **F6** — Admin layer tests, `STORES.md` / `ARCHITECTURE.md` updates.
-3. Manual smoke test: login as admin → full CRUD round-trip on skills/dealerships/customers.
+1. **F7** — Migrate booking flow from Nitro mocks to .NET BFF proxies.
+2. Manual smoke test: login as admin → full CRUD round-trip on skills/dealerships/customers.
 
 ---
 
 ## Related docs
 
 - [FRONTEND_INTEGRATION_PLAN.md](./FRONTEND_INTEGRATION_PLAN.md) — architecture and design decisions
-- [ARCHITECTURE.md](../ARCHITECTURE.md) — booking flow (to be extended)
+- [ARCHITECTURE.md](../ARCHITECTURE.md) — booking flow + admin integration
 - [STORES.md](../STORES.md) — Pinia store registry
 - [AGENTS.md](../AGENTS.md) — frontend conventions
 - [Backend IMPLEMENTATION_PLAN.md](../../simple-appointment-scheduler-be/docs/IMPLEMENTATION_PLAN.md) — API availability by phase

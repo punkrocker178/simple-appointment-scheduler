@@ -2,6 +2,7 @@
 import type { CreateVehicleRequest, Customer, UpdateVehicleRequest, Vehicle } from '~/types/api';
 import EntityFormDialog from '~/components/admin/EntityFormDialog.vue';
 import ConfirmDeleteDialog from '~/components/admin/ConfirmDeleteDialog.vue';
+import { formRules, isRequired, isValidVehicleYear } from '~/utils/validators';
 
 definePageMeta({
   layout: 'admin',
@@ -48,8 +49,8 @@ const isEditing = computed(() => editingId.value !== null);
 const vehicleLabel = (v: Vehicle): string => `${v.year} ${v.make} ${v.model}`;
 
 const rules = {
-  required: (value: string) => !!value?.trim() || 'Required',
-  year: (value: number) => (value >= 1900 && value <= currentYear + 1) || `Year must be 1900–${currentYear + 1}`,
+  required: formRules.required,
+  year: (value: number) => formRules.vehicleYear(value, currentYear),
 };
 
 const load = async (): Promise<void> => {
@@ -91,11 +92,11 @@ const openEdit = (item: Vehicle): void => {
 };
 
 const handleSave = async (): Promise<void> => {
-  if (!form.value.make.trim() || !form.value.model.trim()) {
+  if (!isRequired(form.value.make) || !isRequired(form.value.model)) {
     formError.value = 'Make and model are required.';
     return;
   }
-  if (!rules.year(form.value.year)) {
+  if (!isValidVehicleYear(form.value.year, currentYear)) {
     formError.value = `Year must be between 1900 and ${currentYear + 1}.`;
     return;
   }

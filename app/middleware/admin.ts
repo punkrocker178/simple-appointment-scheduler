@@ -5,6 +5,6 @@ export default defineNuxtRouteMiddleware(() => {
     = authStore.hasPermission('dealerships:read') || authStore.hasPermission('customers:read');
 
   if (!canAccessAdmin) {
-    return navigateTo('/login');
+    return navigateTo('/forbidden');
   }
 });

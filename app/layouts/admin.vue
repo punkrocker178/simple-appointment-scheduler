@@ -1,6 +1,15 @@
 <script setup lang="ts">
 const route = useRoute();
 const { email, role, hasPermission, logout } = useAuth();
+const { notification, clear } = useAppNotification();
+const snackbarOpen = computed({
+  get: () => notification.value !== null,
+  set: (open: boolean) => {
+    if (!open) {
+      clear();
+    }
+  },
+});
 
 interface NavItem {
   title: string;
@@ -73,5 +82,22 @@ const handleLogout = async (): Promise<void> => {
         <slot />
       </div>
     </v-main>
+
+    <v-snackbar
+      v-model="snackbarOpen"
+      :color="notification?.color ?? 'error'"
+      :timeout="5000"
+      location="top"
+    >
+      {{ notification?.message }}
+      <template #actions>
+        <v-btn
+          variant="text"
+          @click="clear"
+        >
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
   </v-app>
 </template>

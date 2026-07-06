@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { CreateCustomerRequest, Customer, UpdateCustomerRequest } from '~/types/api';
 import EntityFormDialog from '~/components/admin/EntityFormDialog.vue';
+import { formRules, isRequired, isValidEmail } from '~/utils/validators';
 
 definePageMeta({
   layout: 'admin',
@@ -38,10 +39,7 @@ const headers = [
 
 const isEditing = computed(() => editingId.value !== null);
 
-const rules = {
-  required: (value: string) => !!value?.trim() || 'Required',
-  email: (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) || 'Invalid email',
-};
+const rules = formRules;
 
 const formatDate = (iso: string): string => {
   return new Date(iso).toLocaleDateString();
@@ -81,11 +79,11 @@ const openEdit = (customer: Customer): void => {
 };
 
 const handleSave = async (): Promise<void> => {
-  if (!form.value.firstName.trim() || !form.value.lastName.trim() || !form.value.email.trim()) {
+  if (!isRequired(form.value.firstName) || !isRequired(form.value.lastName) || !isRequired(form.value.email)) {
     formError.value = 'First name, last name, and email are required.';
     return;
   }
-  if (!rules.email(form.value.email)) {
+  if (!isValidEmail(form.value.email)) {
     formError.value = 'Invalid email address.';
     return;
   }

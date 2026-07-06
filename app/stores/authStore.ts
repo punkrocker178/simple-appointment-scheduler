@@ -22,22 +22,8 @@
 
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import type { LoginResponse, MeBffResponse, ProblemDetails } from '~/types/api';
-
-function extractErrorMessage(error: unknown): string {
-  if (error && typeof error === 'object') {
-    if ('data' in error) {
-      const data = (error as { data?: ProblemDetails }).data;
-      if (data?.detail) {
-        return data.detail;
-      }
-    }
-    if ('message' in error && typeof (error as { message: unknown }).message === 'string') {
-      return (error as { message: string }).message;
-    }
-  }
-  return 'Request failed.';
-}
+import type { LoginResponse, MeBffResponse } from '~/types/api';
+import { extractApiErrorMessage, getApiErrorStatusCode } from '~/utils/apiErrors';
 
 async function authFetch<T>(url: string, options?: Record<string, unknown>): Promise<T> {
   if (import.meta.server) {
@@ -99,7 +85,7 @@ export const useAuthStore = defineStore('authStore', () => {
       await fetchMe();
     }
     catch (err) {
-      error.value = extractErrorMessage(err);
+      error.value = extractApiErrorMessage(err);
       throw err;
     }
     finally {
@@ -115,13 +101,10 @@ export const useAuthStore = defineStore('authStore', () => {
       applyMeResponse(response);
     }
     catch (err) {
-      const statusCode = err && typeof err === 'object' && 'statusCode' in err
-        ? (err as { statusCode: number }).statusCode
-        : undefined;
-      if (statusCode === 401) {
+      if (getApiErrorStatusCode(err) === 401) {
         clearSession();
       }
-      error.value = extractErrorMessage(err);
+      error.value = extractApiErrorMessage(err);
       throw err;
     }
     finally {

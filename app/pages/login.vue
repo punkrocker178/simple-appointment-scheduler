@@ -17,10 +17,7 @@ onMounted(() => {
   }
 });
 
-const rules = {
-  required: (value: string) => !!value || 'Required',
-  email: (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) || 'Invalid email',
-};
+const rules = formRules;
 
 const handleSubmit = async (): Promise<void> => {
   formError.value = null;

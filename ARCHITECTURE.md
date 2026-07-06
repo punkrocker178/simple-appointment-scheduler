@@ -2,9 +2,64 @@
 
 ## Overview
 
-The **Universal Scheduler** is a Nuxt 4 appointment booking application with a Vue 3 frontend that guides customers through a four-step booking process: entering customer/vehicle details → selecting a date and time slot → confirming the appointment → viewing the booking confirmation.
+The **Universal Scheduler** is a Nuxt 4 application with two main areas:
 
-The application follows a **Pinia-Centric Sequential Flow** architecture pattern where:
+1. **Customer booking flow** — four-step appointment booking (vehicle/service → availability → confirmation → summary), backed by local Nitro mocks.
+2. **Admin integration** — JWT auth and CRUD for dealerships, skills, service types, bays, technicians, customers, and vehicles via a Nitro BFF proxy to the .NET API.
+
+Design and progress: [docs/FRONTEND_INTEGRATION_PLAN.md](docs/FRONTEND_INTEGRATION_PLAN.md) | [docs/FRONTEND_INTEGRATION_TRACKER.md](docs/FRONTEND_INTEGRATION_TRACKER.md)
+
+The customer flow follows a **Pinia-Centric Sequential Flow** pattern. The admin area uses permission-gated routes, shared form components, and centralized API error handling.
+
+---
+
+## Admin & Authentication Architecture
+
+### BFF proxy pattern
+
+The browser calls relative `/api/*` on Nuxt. Admin and auth Nitro routes forward to the .NET backend (`NUXT_API_BASE_URL`). The JWT is stored in an httpOnly cookie; the client never calls .NET directly.
+
+```
+Browser → Nuxt Nitro (/api/auth/*, /api/admin/*) → .NET API
+Booking pages → Nitro mocks (/api/services, /api/availability, …) — unchanged
+```
+
+### Auth flow
+
+| Step | Detail |
+|------|--------|
+| Login | `POST /api/auth/login` → Nitro sets httpOnly cookie + returns metadata |
+| Session | `authStore` holds `email`, `role`, `permissions`, `expiresAt` from `/api/auth/me` |
+| Guards | `auth` middleware (cookie / `isAuthenticated`); `admin` middleware (`dealerships:read` or `customers:read`) |
+| 401 | `useAdminApi` / `authStore` logout + redirect `/login` |
+| 403 | Snackbar in admin layout + `/forbidden` page for route-level denial |
+
+### Admin CRUD layer
+
+| Layer | Files |
+|-------|-------|
+| Types | `app/types/api/` — GUID-based DTOs mirroring .NET |
+| Client | `app/composables/useAdminApi.ts` — calls `/api/admin/*` |
+| BFF | `server/api/admin/**` — forwards `Authorization` via `authenticatedBackendFetch` |
+| UI | `app/pages/admin/**`, `app/components/admin/*` |
+| Errors | `app/utils/apiErrors.ts`, `app/composables/useAppNotification.ts` |
+
+### Permission-gated navigation
+
+| Nav item | Permission |
+|----------|------------|
+| Dealerships | `dealerships:read` |
+| Skills | `skills:read` |
+| Customers | `customers:read` (Admin + Staff) |
+
+Nested resources (service types, bays, technicians, vehicles) are linked from parent list rows.
+
+---
+
+## Customer Booking Architecture
+
+The application guides customers through a four-step booking process: entering customer/vehicle details → selecting a date and time slot → confirming the appointment → viewing the booking confirmation.
+
 - **All booking state** is centralized in a single Pinia store (`bookingStore`)
 - **Pages act as route handlers** with validation gates that enforce prerequisite steps
 - **Components are reusable UI** with no local booking state (always synced to store)
@@ -665,6 +720,6 @@ When working on this application:
 
 ---
 
-**Last Updated:** May 1, 2026  
-**Architecture Version:** 1.0  
-**Related Files:** [AGENTS.md](AGENTS.md) | [STORES.md](STORES.md)
+**Last Updated:** July 6, 2026  
+**Architecture Version:** 1.1  
+**Related Files:** [AGENTS.md](AGENTS.md) | [STORES.md](STORES.md) | [docs/FRONTEND_INTEGRATION_PLAN.md](docs/FRONTEND_INTEGRATION_PLAN.md)
