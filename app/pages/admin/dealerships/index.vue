@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { CreateDealershipRequest, Dealership, UpdateDealershipRequest } from '~/types/api';
 import { formatHoursRange } from '~/utils/timeFormat';
+import EntityFormDialog from '~/components/admin/EntityFormDialog.vue';
+import TimeRangePicker from '~/components/admin/TimeRangePicker.vue';
 
 definePageMeta({
   layout: 'admin',

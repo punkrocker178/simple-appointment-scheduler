@@ -35,11 +35,7 @@ const handleLogout = async (): Promise<void> => {
 
 <template>
   <v-app>
-    <v-navigation-drawer
-      permanent
-      width="256"
-      class="border-r border-gray-200"
-    >
+    <v-navigation-drawer permanent width="200" class="border-r border-gray-200">
       <div class="p-4 border-b border-gray-200">
         <h1 class="text-lg font-bold text-gray-900">
           Universal Scheduler
@@ -50,16 +46,8 @@ const handleLogout = async (): Promise<void> => {
       </div>
 
       <v-list density="compact" nav class="py-2">
-        <v-list-item
-          v-for="item in visibleNavItems"
-          :key="item.to"
-          :to="item.to"
-          :prepend-icon="item.icon"
-          :title="item.title"
-          :active="isActive(item.to)"
-          rounded="lg"
-          class="mx-2"
-        />
+        <v-list-item v-for="item in visibleNavItems" :key="item.to" :to="item.to" :prepend-icon="item.icon"
+          :title="item.title" :active="isActive(item.to)" rounded="lg" class="mx-2" />
       </v-list>
     </v-navigation-drawer>
 
@@ -74,12 +62,7 @@ const handleLogout = async (): Promise<void> => {
             {{ role }}
           </p>
         </div>
-        <v-btn
-          variant="outlined"
-          size="small"
-          prepend-icon="mdi-logout"
-          @click="handleLogout"
-        >
+        <v-btn variant="outlined" size="small" prepend-icon="mdi-logout" @click="handleLogout">
           Logout
         </v-btn>
       </div>

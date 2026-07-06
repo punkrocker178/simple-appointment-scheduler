@@ -43,4 +43,11 @@
     margin-inline-start: 1rem;
     margin-inline-end: 1rem;
   }
+
+  .v-main {
+    padding-left: var(--v-layout-left);
+    padding-right: var(--v-layout-right);
+    padding-top: var(--v-layout-top);
+    padding-bottom: var(--v-layout-bottom);
+  }
 }

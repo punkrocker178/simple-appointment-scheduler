@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { CreateCustomerRequest, Customer, UpdateCustomerRequest } from '~/types/api';
+import EntityFormDialog from '~/components/admin/EntityFormDialog.vue';
 
 definePageMeta({
   layout: 'admin',
