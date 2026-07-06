@@ -30,7 +30,7 @@ describe('useAdminApi', () => {
 
   it('forwards Authorization via Nitro routes on success', async () => {
     const mockFetch = vi.mocked(global.$fetch);
-    mockFetch.mockResolvedValueOnce([{ id: '1', name: 'Oil Change' }]);
+    mockFetch.mockResolvedValueOnce([{ id: '1', name: 'Oil Change', canDelete: true }]);
 
     const { fetchSkills } = withSetup(() => useAdminApi());
     const skills = await fetchSkills();

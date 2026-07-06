@@ -2,6 +2,7 @@
 import type { CreateSkillRequest, Skill } from '~/types/api';
 import EntityFormDialog from '~/components/admin/EntityFormDialog.vue';
 import ConfirmDeleteDialog from '~/components/admin/ConfirmDeleteDialog.vue';
+import DeleteActionButton from '~/components/admin/DeleteActionButton.vue';
 
 definePageMeta({
   layout: 'admin',
@@ -147,11 +148,9 @@ onMounted(() => {
         {{ value || '—' }}
       </template>
       <template #item.actions="{ item }">
-        <v-btn
-          icon="mdi-delete"
-          variant="text"
-          color="error"
-          size="small"
+        <DeleteActionButton
+          :can-delete="item.canDelete"
+          disabled-reason="This skill is used by service types or technicians."
           @click="openDelete(item)"
         />
       </template>
