@@ -19,7 +19,9 @@ export default defineNuxtConfig({
   },
 
   css: [
-    '~/assets/styles/main.css',
+     '~/assets/styles/layers.css',
+    'vuetify/styles',
+    '~/assets/styles/tailwind.css',
   ],
 
   postcss: {
