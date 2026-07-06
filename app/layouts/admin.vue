@@ -34,7 +34,7 @@ const handleLogout = async (): Promise<void> => {
 </script>
 
 <template>
-  <v-app>
+  <v-app theme="light">
     <v-navigation-drawer permanent width="200" class="border-r border-gray-200">
       <div class="p-4 border-b border-gray-200">
         <h1 class="text-lg font-bold text-gray-900">
