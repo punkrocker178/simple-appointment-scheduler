@@ -10,6 +10,13 @@ export interface AuthResponse {
   role: string;
 }
 
+/** Public login payload returned by the BFF (token is stored in httpOnly cookie). */
+export interface LoginResponse {
+  expiresAt: string;
+  email: string;
+  role: string;
+}
+
 export interface MeClaim {
   type: string;
   value: string;
@@ -21,4 +28,9 @@ export interface MeResponse {
   role: string;
   permissions: string[];
   claims: MeClaim[];
+}
+
+/** BFF /api/auth/me response — includes session expiry from cookie. */
+export interface MeBffResponse extends MeResponse {
+  expiresAt: string;
 }

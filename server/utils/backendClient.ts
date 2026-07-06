@@ -1,5 +1,6 @@
 import type { H3Event } from 'h3';
 import type { ProblemDetails } from '~/types/api';
+import { getTokenFromCookies } from './authCookies';
 
 export interface BackendFetchOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
@@ -53,6 +54,11 @@ export async function backendFetch<T>(
 }
 
 export function getBearerToken(event: H3Event): string | null {
+  const cookieToken = getTokenFromCookies(event);
+  if (cookieToken) {
+    return `Bearer ${cookieToken}`;
+  }
+
   const authorization = getHeader(event, 'authorization');
   if (!authorization?.startsWith('Bearer ')) {
     return null;

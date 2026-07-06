@@ -5,16 +5,24 @@
  */
 export function useAuth() {
   const store = useAuthStore();
+  const {
+    expiresAt,
+    email,
+    role,
+    permissions,
+    isLoading,
+    error,
+    isAuthenticated,
+  } = storeToRefs(store);
 
   return {
-    token: store.token,
-    expiresAt: store.expiresAt,
-    email: store.email,
-    role: store.role,
-    permissions: store.permissions,
-    isLoading: store.isLoading,
-    error: store.error,
-    isAuthenticated: store.isAuthenticated,
+    expiresAt,
+    email,
+    role,
+    permissions,
+    isLoading,
+    error,
+    isAuthenticated,
     hasPermission: store.hasPermission,
     login: store.login,
     logout: store.logout,

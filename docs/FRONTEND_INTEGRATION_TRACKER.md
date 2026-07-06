@@ -1,7 +1,7 @@
 # Frontend Integration — Progress Tracker
 
-**Last updated:** 2026-07-04  
-**Current phase:** F2 — Login (next)  
+**Last updated:** 2026-07-06  
+**Current phase:** F3 — Admin shell (next)  
 **Design doc:** [FRONTEND_INTEGRATION_PLAN.md](./FRONTEND_INTEGRATION_PLAN.md)  
 **Backend status:** [IMPLEMENTATION_PLAN.md](../../simple-appointment-scheduler-be/docs/IMPLEMENTATION_PLAN.md) (Phases 1–4 complete)
 
@@ -23,7 +23,7 @@ Use this document to track frontend integration work. Update checkboxes and the 
 | Phase | Name | Status | Notes |
 |-------|------|--------|-------|
 | F1 | Foundation | ✅ Done | Config, types, BFF client, auth store, middleware, auth proxy |
-| F2 | Login | ⬜ Not started | Login page, layout, auth bootstrap |
+| F2 | Login | ✅ Done | Login page, default layout, auth bootstrap, stub admin landing |
 | F3 | Admin shell | ⬜ Not started | Layout, nav, reusable components, `useAdminApi` |
 | F4a | Skills & Dealerships | ⬜ Not started | First entity CRUD pages |
 | F4b | Nested dealership resources | ⬜ Not started | Service types, bays, technicians |
@@ -53,16 +53,17 @@ Use this document to track frontend integration work. Update checkboxes and the 
 
 ---
 
-## Phase F2 — Login ⬜
+## Phase F2 — Login ✅
 
 | Task | Status | Evidence |
 |------|--------|----------|
-| Create `app/layouts/default.vue` | ⬜ | — |
-| Update `app.vue` with `<NuxtLayout>` | ⬜ | — |
-| Create `app/pages/login.vue` | ⬜ | — |
-| Create `plugins/auth.client.ts` (token bootstrap) | ⬜ | — |
-| `test/stores/authStore.spec.ts` | ⬜ | — |
-| `test/pages/login.spec.ts` | ⬜ | — |
+| Create `app/layouts/default.vue` | ✅ | `app/layouts/default.vue` |
+| Update `app.vue` with `<NuxtLayout>` | ✅ | `app/app.vue` |
+| Create `app/pages/login.vue` | ✅ | `app/pages/login.vue` |
+| Create `plugins/auth.client.ts` (token bootstrap) | ✅ | `app/plugins/auth.client.ts` |
+| Stub `app/pages/admin/index.vue` (post-login redirect target) | ✅ | `app/pages/admin/index.vue` |
+| `test/stores/authStore.spec.ts` | ✅ | `test/stores/authStore.spec.ts` |
+| `test/pages/login.spec.ts` | ✅ | `test/pages/login.spec.ts` |
 
 **Exit criteria:** Admin user can log in against live .NET backend and land on `/admin`.
 
@@ -159,9 +160,8 @@ Build in dependency order (mirrors backend Phase 3).
 
 ## Recommended next session
 
-1. **F2** — Login page, default layout, auth bootstrap plugin.
-2. Verify login with seeded admin (`admin@example.com` / `adminpassword`).
-3. Smoke test: login → empty admin shell with permission-gated nav.
+1. **F3** — Admin layout, permission-gated nav, reusable components, `useAdminApi`.
+2. Smoke test: login → admin shell with nav links.
 
 ---
 
