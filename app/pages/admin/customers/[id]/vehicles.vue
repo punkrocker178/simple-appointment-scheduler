@@ -3,6 +3,7 @@ import type { CreateVehicleRequest, Customer, UpdateVehicleRequest, Vehicle } fr
 import EntityFormDialog from '~/components/admin/EntityFormDialog.vue';
 import ConfirmDeleteDialog from '~/components/admin/ConfirmDeleteDialog.vue';
 import { formRules, isRequired, isValidVehicleYear } from '~/utils/validators';
+import DeleteActionButton from '~/components/admin/DeleteActionButton.vue';
 
 definePageMeta({
   layout: 'admin',
@@ -205,11 +206,9 @@ onMounted(() => {
           size="small"
           @click="openEdit(item)"
         />
-        <v-btn
-          icon="mdi-delete"
-          variant="text"
-          color="error"
-          size="small"
+        <DeleteActionButton
+          :can-delete="item.canDelete"
+          disabled-reason="This vehicle has appointments and cannot be deleted."
           @click="openDelete(item)"
         />
       </template>

@@ -4,6 +4,7 @@ export interface Vehicle {
   make: string;
   model: string;
   year: number;
+  canDelete: boolean;
 }
 
 export interface CreateVehicleRequest {
