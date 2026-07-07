@@ -31,7 +31,7 @@ Use this document to track frontend integration work. Update checkboxes and the 
 | F5 | Error handling & UX | ✅ Done | ProblemDetails mapping, 401/403 flows, validators, skeletons |
 | F6 | Tests & docs | ✅ Done | Unit tests, ARCHITECTURE.md / STORES.md updates |
 | F7 | Customer self-service booking | ✅ Done | Auth + BFF + booking flow on .NET; mocks retired |
-| F8 | Appointment admin | ↪ Deferred | Blocked on backend Phase 5 lifecycle APIs |
+| F8 | Appointment admin | 🔶 Partial | Daily schedule view done; lifecycle APIs deferred |
 
 ---
 
@@ -172,7 +172,7 @@ Sub-phases F7a–F7d landed the backend identity/self-service APIs, auth BFF, an
 
 | Task | Status | Notes |
 |------|--------|-------|
-| Daily schedule view | ↪ | `GET /api/dealerships/{id}/appointments?date=` |
+| Daily schedule view | ✅ | `GET /api/dealerships/{id}/appointments?date=` — `admin/dealerships/[id]/appointments.vue` |
 | Status transitions UI | ↪ | Blocked on backend Phase 5 |
 | Cancel appointment UI | ↪ | Blocked on backend Phase 5 |
 
@@ -180,8 +180,8 @@ Sub-phases F7a–F7d landed the backend identity/self-service APIs, auth BFF, an
 
 ## Recommended next session
 
-1. **F8** — Appointment admin UI (blocked on backend Phase 5 lifecycle APIs).
-2. Manual smoke test: register customer → add vehicle → book appointment → confirm summary.
+1. **F8 remainder** — Appointment status transitions and cancel UI (blocked on backend Phase 5 lifecycle APIs).
+2. Manual smoke test: register customer → add vehicle → book appointment → confirm summary; admin views daily schedule.
 
 ---
 

@@ -196,6 +196,14 @@ onMounted(() => {
           >
             Techs
           </v-btn>
+          <v-btn
+            :to="`/admin/dealerships/${item.id}/appointments`"
+            variant="text"
+            size="small"
+            prepend-icon="mdi-calendar-clock"
+          >
+            Schedule
+          </v-btn>
         </div>
       </template>
     </AdminDataTable>

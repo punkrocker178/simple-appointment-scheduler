@@ -168,6 +168,7 @@ export function createMockAppointmentResponse(overrides?: Partial<{
   bookingDate: string
   secondsFromMidnight: number
   durationMinutes: number
+  status: number
 }>): {
   id: string;
   customerId: string;
@@ -178,7 +179,7 @@ export function createMockAppointmentResponse(overrides?: Partial<{
   bookingDate: string;
   secondsFromMidnight: number;
   durationMinutes: number;
-  status: 'Scheduled';
+  status: number;
 } {
   return {
     id: 'apt-456',
@@ -190,7 +191,7 @@ export function createMockAppointmentResponse(overrides?: Partial<{
     bookingDate: '2025-05-15',
     secondsFromMidnight: 28800,
     durationMinutes: 30,
-    status: 'Scheduled',
+    status: 0,
     ...overrides,
   };
 }

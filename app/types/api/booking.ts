@@ -40,9 +40,10 @@ export interface CreateAppointmentRequest {
 }
 
 export enum AppointmentStatus {
-  Scheduled = 'Scheduled',
-  Completed = 'Completed',
-  Cancelled = 'Cancelled',
+  Scheduled = 0,
+  InProgress = 1,
+  Completed = 2,
+  Cancelled = 3,
 }
 
 export interface AppointmentResponse {
