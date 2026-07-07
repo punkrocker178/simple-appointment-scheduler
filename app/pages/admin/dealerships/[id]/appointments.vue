@@ -2,6 +2,7 @@
 import type { AppointmentResponse, AppointmentStatus } from '~/types/api';
 import { appointmentStatusColor, formatAppointmentStatus } from '~/utils/appointmentStatus';
 import { secondsToTimeString } from '~/utils/timeFormat';
+import { useDebounceFn } from '@vueuse/core';
 
 definePageMeta({
   layout: 'admin',
@@ -127,9 +128,14 @@ const load = async (): Promise<void> => {
   }
 };
 
-watch(selectedDate, () => {
-  load();
-});
+const debouncedLoad = useDebounceFn(async () => {
+  await load();
+}, 400);
+
+const handleDateSelect = (date: string): void => {
+  selectedDate.value = date;
+  debouncedLoad();
+};
 
 onMounted(() => {
   load();
@@ -157,12 +163,13 @@ onMounted(() => {
         </p>
       </div>
       <v-text-field
-        v-model="selectedDate"
+        :model-value="selectedDate"
         type="date"
         label="Date"
         density="compact"
         hide-details
         class="max-w-48"
+        @update:model-value="handleDateSelect"
       />
     </div>
 
