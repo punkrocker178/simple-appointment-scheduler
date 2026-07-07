@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { AvailabilitySlotDto } from '~/types/api/booking';
+import { useDebounceFn } from '@vueuse/core';
 
 definePageMeta({ middleware: 'auth' });
 
@@ -11,9 +12,9 @@ onMounted(() => {
   }
 });
 
-const handleDateSelect = async (date: string): Promise<void> => {
+const handleDateSelect = useDebounceFn(async (date: string) => {
   await store.fetchAvailability(date);
-};
+}, 400);
 
 const handleSlotSelect = (slot: AvailabilitySlotDto): void => {
   store.selectSlot(slot);
