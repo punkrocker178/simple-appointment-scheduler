@@ -1,97 +1,116 @@
 /**
- * Pinia Booking Store - Manages the entire appointment booking workflow
+ * Pinia Booking Store - Manages the authenticated customer booking workflow
  *
  * **State:**
- * - services: List of available services
- * - selectedServiceId: Currently selected service ID
- * - selectedDate: Currently selected booking date
+ * - services: Active service types from the real .NET endpoint
+ * - dealershipId: Default dealership id resolved by the BFF
+ * - selectedServiceTypeId: Currently selected service type id
+ * - selectedDate: Currently selected booking date (yyyy-MM-dd)
+ * - availabilityResponse: Full backend availability response
  * - availableSlots: Slots available for selected date/service
- * - selectedSlot: Currently selected time slot
- * - vehicle: Vehicle information (plate, make, model)
- * - customer: Customer information (name, email)
- * - appointmentId: ID after successful booking
- * - bookingReference: Reference number after successful booking
- * - isLoading: Whether API call in progress
+ * - selectedSlot: Currently selected time slot (secondsFromMidnight)
+ * - vehicles: Customer's saved vehicles
+ * - selectedVehicleId: Currently selected vehicle id
+ * - customerProfile: Customer's profile from /api/me/customer
+ * - appointment: Created appointment response
+ * - isLoading: Whether an async operation is in progress
  * - error: Error message if operation failed
  *
  * **Getters:**
- * - selectedService: Full service object for selectedServiceId
+ * - selectedService: Full service type object for selectedServiceTypeId
+ * - selectedVehicle: Full vehicle object for selectedVehicleId
  * - isBookingComplete: Whether all required fields are filled
  *
  * **Actions:**
- * - loadServices(): Fetch service catalog
- * - selectService(id): Set service and reset dependent fields
+ * - bootstrap(): Load service types, vehicles, and customer profile
+ * - selectServiceType(id): Set service type and reset dependent fields
  * - selectDate(date): Set booking date
  * - fetchAvailability(date): Load slots for selected service and date
  * - selectSlot(slot): Select a time slot
- * - setVehicle(plate, make, model): Update vehicle information
- * - setCustomer(name, email): Update customer information
- * - submitBooking(): Create appointment on backend
+ * - selectVehicle(id): Select an existing vehicle
+ * - addVehicle(make, model, year): Create and select a new vehicle
+ * - submitBooking(): Create appointment on the backend
  * - resetBooking(): Clear all state
  */
 
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import type { Service, Slot, Appointment } from '#server/utils/types';
+import type {
+  AppointmentResponse,
+  AvailabilityResponse,
+  AvailabilitySlotDto,
+  BookingVehicle,
+  CreateAppointmentRequest,
+  ServiceTypeOption,
+} from '~/types/api/booking';
+import type { Customer } from '~/types/api';
 
 export const useBookingStore = defineStore('bookingStore', () => {
   // ============ State ============
-  const services = ref<Service[]>([]);
-  const selectedServiceId = ref<number | null>(null);
+  const services = ref<ServiceTypeOption[]>([]);
+  const dealershipId = ref<string | null>(null);
+  const selectedServiceTypeId = ref<string | null>(null);
   const selectedDate = ref<string>('');
-  const availableSlots = ref<Slot[]>([]);
-  const selectedSlot = ref<Slot | null>(null);
-  const vehicle = ref<{ plate: string, make?: string, model?: string }>({
-    plate: '',
-    make: '',
-    model: '',
-  });
-  const customer = ref<{ name: string, email: string }>({
-    name: '',
-    email: '',
-  });
-  const appointmentId = ref<string | null>(null);
-  const bookingReference = ref<string | null>(null);
-  const confirmation = ref<Appointment | null>(null);
+  const availabilityResponse = ref<AvailabilityResponse | null>(null);
+  const availableSlots = ref<AvailabilitySlotDto[]>([]);
+  const selectedSlot = ref<AvailabilitySlotDto | null>(null);
+  const vehicles = ref<BookingVehicle[]>([]);
+  const selectedVehicleId = ref<string | null>(null);
+  const customerProfile = ref<Customer | null>(null);
+  const appointment = ref<AppointmentResponse | null>(null);
   const isLoading = ref<boolean>(false);
   const error = ref<string | null>(null);
 
   // ============ Getters ============
-  const selectedService = computed((): Service | undefined => {
-    return services.value.find(s => s.id === selectedServiceId.value);
+  const selectedService = computed((): ServiceTypeOption | undefined => {
+    return services.value.find(s => s.id === selectedServiceTypeId.value);
+  });
+
+  const selectedVehicle = computed((): BookingVehicle | undefined => {
+    return vehicles.value.find(v => v.id === selectedVehicleId.value);
   });
 
   const isBookingComplete = computed((): boolean => {
     return Boolean(
-      vehicle.value.plate
-      && selectedServiceId.value
+      selectedVehicleId.value
+      && selectedServiceTypeId.value
       && selectedDate.value
       && selectedSlot.value
-      && customer.value.name
-      && customer.value.email,
+      && customerProfile.value,
     );
   });
 
   // ============ Actions ============
-  const loadServices = async (): Promise<void> => {
-    const { services: svc } = useServices();
+  const api = useBookingApi();
+  const authStore = useAuthStore();
+
+  const bootstrap = async (): Promise<void> => {
     isLoading.value = true;
     error.value = null;
     try {
-      await useServices().load();
-      services.value = svc.value;
+      const [serviceTypesResult, vehiclesResult, customerResult] = await Promise.all([
+        api.fetchServiceTypes(),
+        api.fetchMyVehicles(),
+        api.fetchMyCustomer(),
+      ]);
+      services.value = serviceTypesResult.serviceTypes;
+      dealershipId.value = serviceTypesResult.dealershipId;
+      vehicles.value = vehiclesResult;
+      customerProfile.value = customerResult;
     }
     catch (err) {
-      error.value = (err as Error).message || 'Failed to load services';
+      error.value = (err as Error).message || 'Failed to load booking data';
+      throw err;
     }
     finally {
       isLoading.value = false;
     }
   };
 
-  const selectService = (id: number | null): void => {
-    selectedServiceId.value = id;
+  const selectServiceType = (id: string | null): void => {
+    selectedServiceTypeId.value = id;
     selectedDate.value = '';
+    availabilityResponse.value = null;
     availableSlots.value = [];
     selectedSlot.value = null;
   };
@@ -99,23 +118,31 @@ export const useBookingStore = defineStore('bookingStore', () => {
   const selectDate = (date: string): void => {
     selectedDate.value = date;
     selectedSlot.value = null;
+    availabilityResponse.value = null;
     availableSlots.value = [];
   };
 
   const fetchAvailability = async (date: string): Promise<void> => {
-    if (!selectedServiceId.value)
-      throw new Error('Service not selected');
+    if (!selectedServiceTypeId.value)
+      throw new Error('Service type not selected');
+    if (!dealershipId.value)
+      throw new Error('Dealership not loaded');
 
     isLoading.value = true;
     error.value = null;
     try {
-      const { slots } = useAvailability();
-      await useAvailability().fetch(selectedServiceId.value, date);
-      availableSlots.value = slots.value;
+      const result = await api.fetchAvailability(
+        dealershipId.value,
+        selectedServiceTypeId.value,
+        date,
+      );
+      availabilityResponse.value = result;
+      availableSlots.value = result.slots;
       selectedDate.value = date;
     }
     catch (err) {
       error.value = (err as Error).message || 'Failed to fetch availability';
+      availabilityResponse.value = null;
       availableSlots.value = [];
     }
     finally {
@@ -123,39 +150,50 @@ export const useBookingStore = defineStore('bookingStore', () => {
     }
   };
 
-  const selectSlot = (slot: Slot): void => {
+  const selectSlot = (slot: AvailabilitySlotDto): void => {
     selectedSlot.value = slot;
   };
 
-  const setVehicle = (plate: string, make?: string, model?: string): void => {
-    vehicle.value = { plate, make: make || '', model: model || '' };
+  const selectVehicle = (id: string | null): void => {
+    selectedVehicleId.value = id;
   };
 
-  const setCustomer = (name: string, email: string): void => {
-    customer.value = { name, email };
+  const addVehicle = async (make: string, model: string, year: number): Promise<void> => {
+    isLoading.value = true;
+    error.value = null;
+    try {
+      const vehicle = await api.createVehicle({ make, model, year });
+      vehicles.value.push(vehicle);
+      selectedVehicleId.value = vehicle.id;
+    }
+    catch (err) {
+      error.value = (err as Error).message || 'Failed to add vehicle';
+      throw err;
+    }
+    finally {
+      isLoading.value = false;
+    }
   };
 
   const submitBooking = async (): Promise<void> => {
     if (!isBookingComplete.value)
       throw new Error('Booking is incomplete');
+    if (!authStore.customerId)
+      throw new Error('Customer profile not linked');
+
+    const payload: CreateAppointmentRequest = {
+      customerId: authStore.customerId,
+      vehicleId: selectedVehicleId.value!,
+      serviceTypeId: selectedServiceTypeId.value!,
+      bookingDate: selectedDate.value,
+      secondsFromMidnight: selectedSlot.value!.secondsFromMidnight,
+    };
 
     isLoading.value = true;
     error.value = null;
     try {
-      const response = await createAppointment({
-        serviceId: selectedServiceId.value!,
-        startTime: selectedSlot.value!.startTime,
-        endTime: selectedSlot.value!.endTime,
-        vehiclePlate: vehicle.value.plate,
-        vehicleMake: vehicle.value.make,
-        vehicleModel: vehicle.value.model,
-        customerName: customer.value.name,
-        customerEmail: customer.value.email,
-      });
-
-      appointmentId.value = response.appointmentId;
-      bookingReference.value = response.bookingReference;
-      confirmation.value = response.appointment;
+      const response = await api.createAppointment(payload);
+      appointment.value = response;
     }
     catch (err) {
       error.value = (err as Error).message || 'Failed to create appointment';
@@ -168,43 +206,46 @@ export const useBookingStore = defineStore('bookingStore', () => {
 
   const resetBooking = (): void => {
     services.value = [];
-    selectedServiceId.value = null;
+    dealershipId.value = null;
+    selectedServiceTypeId.value = null;
     selectedDate.value = '';
+    availabilityResponse.value = null;
     availableSlots.value = [];
     selectedSlot.value = null;
-    vehicle.value = { plate: '', make: '', model: '' };
-    customer.value = { name: '', email: '' };
-    appointmentId.value = null;
-    bookingReference.value = null;
-    confirmation.value = null;
+    vehicles.value = [];
+    selectedVehicleId.value = null;
+    customerProfile.value = null;
+    appointment.value = null;
     error.value = null;
   };
 
   return {
     // State
     services,
-    selectedServiceId,
+    dealershipId,
+    selectedServiceTypeId,
     selectedDate,
+    availabilityResponse,
     availableSlots,
     selectedSlot,
-    vehicle,
-    customer,
-    appointmentId,
-    bookingReference,
-    confirmation,
+    vehicles,
+    selectedVehicleId,
+    customerProfile,
+    appointment,
     isLoading,
     error,
     // Getters
     selectedService,
+    selectedVehicle,
     isBookingComplete,
     // Actions
-    loadServices,
-    selectService,
+    bootstrap,
+    selectServiceType,
     selectDate,
     fetchAvailability,
     selectSlot,
-    setVehicle,
-    setCustomer,
+    selectVehicle,
+    addVehicle,
     submitBooking,
     resetBooking,
   };

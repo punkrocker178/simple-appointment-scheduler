@@ -1,12 +1,14 @@
 <script setup lang="ts">
+definePageMeta({ middleware: 'auth' });
+
 const store = useBookingStore();
 
 onMounted(async () => {
-  await store.loadServices();
+  await store.bootstrap();
 });
 
 const handleNext = (): void => {
-  if (store.vehicle.plate && store.selectedServiceId) {
+  if (store.selectedVehicleId && store.selectedServiceTypeId) {
     navigateTo('/availability');
   }
 };
@@ -15,16 +17,15 @@ const handleNext = (): void => {
 <template>
   <div class="max-w-2xl mx-auto p-6">
     <h1 class="text-3xl font-bold mb-8">Book Your Service Appointment</h1>
-    
+
     <div class="space-y-8">
       <CustomerForm :store="store" />
       <VehicleForm :store="store" />
-
       <ServiceSelector :store="store" />
 
       <div class="flex justify-end">
         <button
-          :disabled="!store.vehicle.plate || !store.selectedServiceId"
+          :disabled="!store.selectedVehicleId || !store.selectedServiceTypeId"
           class="px-6 py-3 bg-blue-600 text-white rounded-lg disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-blue-700"
           @click="handleNext"
         >

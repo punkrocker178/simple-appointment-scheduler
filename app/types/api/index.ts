@@ -17,6 +17,17 @@ export type {
   UpdateDealershipRequest,
 } from './dealership';
 
+export type {
+  ServiceTypeOption,
+  BookingServiceTypesResponse,
+  AvailabilitySlotDto,
+  AvailabilityResponse,
+  BookingVehicle,
+  CreateAppointmentRequest,
+  AppointmentResponse,
+  AppointmentStatus,
+} from './booking';
+
 export type { Skill, CreateSkillRequest } from './skill';
 
 export type {

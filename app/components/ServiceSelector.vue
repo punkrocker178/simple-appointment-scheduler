@@ -15,11 +15,14 @@
     </div>
 
     <div v-else class="space-y-3">
-      <v-radio-group :model-value="store.selectedServiceId">
-        <v-card 
-          v-for="service in store.services" :key="service.id" class="cursor-pointer transition-all mb-4 rounded-xl"
-          :class="{ 'border-2 border-blue-500': store.selectedServiceId === service.id }"
-          @click="store.selectService(service.id)">
+      <v-radio-group :model-value="store.selectedServiceTypeId">
+        <v-card
+          v-for="service in store.services"
+          :key="service.id"
+          class="cursor-pointer transition-all mb-4 rounded-xl"
+          :class="{ 'border-2 border-blue-500': store.selectedServiceTypeId === service.id }"
+          @click="store.selectServiceType(service.id)"
+        >
           <div class="p-4 flex flex-col h-full">
             <div class="flex items-start">
               <div class="flex-1">
@@ -28,10 +31,10 @@
                   Duration: {{ service.durationMinutes }} minutes
                 </p>
                 <p class="text-sm text-blue-600 mt-1">
-                  Requires: {{ service.requiredSkill }}
+                  ${{ service.price.toFixed(2) }}
                 </p>
               </div>
-              <div class="flex align-center h-[100%]">
+              <div class="flex align-center h-full">
                 <v-radio :value="service.id" class="accent-blue-500" />
               </div>
             </div>
@@ -43,11 +46,9 @@
 </template>
 
 <script setup lang="ts">
-
 interface Props {
   store: ReturnType<typeof useBookingStore>
 }
 
 defineProps<Props>();
-
 </script>

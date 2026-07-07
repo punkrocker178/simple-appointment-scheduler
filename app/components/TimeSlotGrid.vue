@@ -13,19 +13,18 @@
     <div v-else class="grid grid-cols-2 gap-3">
       <v-card
         v-for="slot in slots"
-        :key="slot.startTime"
+        :key="slot.secondsFromMidnight"
         class="p-3 cursor-pointer hover:shadow-md transition-all rounded-xl"
-        :class="slot.available ? (selectedSlot === slot ? 'border-2 border-blue-500 text-white' : 'bg-white') : 'bg-gray-100 opacity-60 cursor-not-allowed'"
+        :class="selectedSlot === slot ? 'border-2 border-blue-500 text-white' : 'bg-white'"
         @click="select(slot)"
       >
         <div class="flex items-center justify-between">
           <div>
-            <div class="font-semibold text-gray-900">{{ formatTime(slot.startTime) }}</div>
-            <div class="text-sm text-gray-500">{{ formatTime(slot.endTime) }}</div>
+            <div class="font-semibold text-gray-900">{{ formatTime(slot.secondsFromMidnight) }}</div>
+            <div class="text-sm text-gray-500">{{ formatEndTime(slot.secondsFromMidnight) }}</div>
           </div>
           <div>
-            <v-icon v-if="slot.available" color="green">mdi-check-circle</v-icon>
-            <v-icon v-else color="gray">mdi-cancel</v-icon>
+            <v-icon color="green">mdi-check-circle</v-icon>
           </div>
         </div>
       </v-card>
@@ -34,37 +33,35 @@
 </template>
 
 <script setup lang="ts">
-import type { Slot } from '#server/utils/types';
+import type { AvailabilitySlotDto } from '~/types/api/booking';
+import { secondsToTimeLabel, slotEndSeconds } from '~/utils/bookingTime';
 
 interface Props {
-  slots: Slot[]
+  slots: AvailabilitySlotDto[]
+  durationMinutes: number
   isLoading?: boolean
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   isLoading: false,
 });
 
-const emit =  defineEmits<{
-  (e: 'selected', slot: Slot): void
+const emit = defineEmits<{
+  selected: [slot: AvailabilitySlotDto]
 }>();
 
-const selectedSlot = ref<Slot | null>(null);
+const selectedSlot = ref<AvailabilitySlotDto | null>(null);
 
-function formatTime(unix: number): string {
-  try {
-    const d = new Date(unix);
-    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  }
-  catch {
-    return unix.toString();
-  }
+function formatTime(secondsFromMidnight: number): string {
+  return secondsToTimeLabel(secondsFromMidnight);
 }
 
-function select(slot: Slot) {
-  if (!slot.available) return;
+function formatEndTime(secondsFromMidnight: number): string {
+  return secondsToTimeLabel(slotEndSeconds(secondsFromMidnight, props.durationMinutes));
+}
+
+function select(slot: AvailabilitySlotDto) {
   selectedSlot.value = slot;
-  // emit select
   emit('selected', slot);
 }
 </script>

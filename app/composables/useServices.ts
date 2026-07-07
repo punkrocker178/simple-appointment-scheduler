@@ -1,31 +1,34 @@
 /**
- * useServices - Fetch and cache services
+ * useServices - Fetch and cache service types for the booking flow
  *
- * Loads the service catalog from the API on first call and caches it.
- * Subsequent calls return the cached result.
+ * Loads active service types from the real .NET service-type endpoint via the BFF.
+ * Subsequent calls within this composable instance return the cached result.
  *
  * @returns {Object} Services state and methods
- * - services: Reactive ref to services array
+ * - services: Reactive ref to active service types
+ * - dealershipId: Reactive ref to the default dealership id
  * - isLoading: Whether fetch is in progress
  * - error: Error message if fetch failed
  * - refresh(): Force re-fetch services
  */
 
 import { ref, computed } from 'vue';
-import type { Service } from '#server/utils/types';
-import { fetchServices } from './useApiClient';
-
-const services = ref<Service[]>([]);
-const isLoading = ref<boolean>(false);
-const error = ref<string | null>(null);
-let cached = false;
+import type { BookingServiceTypesResponse, ServiceTypeOption } from '~/types/api/booking';
 
 export function useServices() {
+  const services = ref<ServiceTypeOption[]>([]);
+  const dealershipId = ref<string | null>(null);
+  const isLoading = ref<boolean>(false);
+  const error = ref<string | null>(null);
+  let cached = false;
+
   const refresh = async (): Promise<void> => {
     isLoading.value = true;
     error.value = null;
     try {
-      services.value = await fetchServices();
+      const response = await $fetch<BookingServiceTypesResponse>('/api/booking/service-types');
+      services.value = response.serviceTypes;
+      dealershipId.value = response.dealershipId;
       cached = true;
     }
     catch (err) {
@@ -44,6 +47,7 @@ export function useServices() {
 
   return {
     services: computed(() => services.value),
+    dealershipId: computed(() => dealershipId.value),
     isLoading: computed(() => isLoading.value),
     error: computed(() => error.value),
     load,

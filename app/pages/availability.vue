@@ -1,19 +1,21 @@
 <script setup lang="ts">
-import type { Slot } from '#server/utils/types';
+import type { AvailabilitySlotDto } from '~/types/api/booking';
+
+definePageMeta({ middleware: 'auth' });
+
 const store = useBookingStore();
 
 onMounted(() => {
-  if (!store.selectedServiceId || !store.vehicle.plate) {
+  if (!store.selectedServiceTypeId || !store.selectedVehicleId) {
     navigateTo('/booking-start');
   }
 });
 
 const handleDateSelect = async (date: string): Promise<void> => {
-  console.log('Selected date:', date);
   await store.fetchAvailability(date);
 };
 
-const handleSlotSelect = (slot: Slot): void => {
+const handleSlotSelect = (slot: AvailabilitySlotDto): void => {
   store.selectSlot(slot);
 };
 
@@ -49,7 +51,7 @@ const handleBack = (): void => {
 
       <TimeSlotGrid
         :slots="store.availableSlots"
-        :selected-slot="store.selectedSlot"
+        :duration-minutes="store.availabilityResponse?.durationMinutes ?? store.selectedService?.durationMinutes ?? 0"
         :is-loading="store.isLoading"
         @selected="handleSlotSelect"
       />
