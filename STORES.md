@@ -6,13 +6,14 @@ This document provides a registry and reference for all Pinia stores in the univ
 
 ### `authStore` — `app/stores/authStore.ts`
 
-Manages JWT session metadata for admin/staff users. The JWT itself is stored in an httpOnly cookie set by the Nitro BFF; this store holds `email`, `role`, `permissions`, and `expiresAt` synced from `/api/auth/me`.
+Manages JWT session metadata for admin/staff and customer users. The JWT itself is stored in an httpOnly cookie set by the Nitro BFF; this store holds `email`, `role`, `customerId`, `permissions`, and `expiresAt` synced from `/api/auth/me`.
 
 | State | Type | Purpose |
 |-------|------|---------|
 | `expiresAt` | `string` | Token expiry (ISO) |
 | `email` | `string` | Signed-in user email |
-| `role` | `string` | Role name (Admin, Staff, …) |
+| `role` | `string` | Role name (Admin, Staff, User, …) |
+| `customerId` | `string \| null` | Linked customer profile for User role |
 | `permissions` | `string[]` | Permission claims from `/api/auth/me` |
 | `isLoading` | `boolean` | Async auth operation in progress |
 | `error` | `string \| null` | Last auth error message |
@@ -24,6 +25,7 @@ Manages JWT session metadata for admin/staff users. The JWT itself is stored in 
 | Action | Purpose |
 |--------|---------|
 | `login(email, password)` | `POST /api/auth/login`, then `fetchMe()` |
+| `register(request)` | `POST /api/auth/register` (auto-login), then `fetchMe()` |
 | `fetchMe()` | `GET /api/auth/me` — clears session on 401 |
 | `logout()` | `POST /api/auth/logout` + clear local state |
 | `hasPermission(name)` | Check if permission is in `permissions` |

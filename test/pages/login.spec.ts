@@ -4,6 +4,7 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { mountSuspended, mockNuxtImport } from '@nuxt/test-utils/runtime';
+import type { Pinia } from 'pinia';
 import LoginPage from '~/pages/login.vue';
 import { useAuthStore } from '~/stores/authStore';
 import { setupPinia, setupFetchMock, teardownFetchMock, vuetifyStubs } from '../testUtils';
@@ -48,8 +49,11 @@ const loginStubs = {
 };
 
 describe('login page', () => {
+  let wrapper: VueWrapper | null = null;
+  let pinia: Pinia;
+
   beforeEach(() => {
-    setupPinia();
+    pinia = setupPinia();
     setupFetchMock();
     tokenCookieRef.value = null;
     navigateToMock.mockReset();
@@ -57,6 +61,8 @@ describe('login page', () => {
   });
 
   afterEach(() => {
+    wrapper?.unmount();
+    wrapper = null;
     teardownFetchMock();
     vi.restoreAllMocks();
   });
@@ -65,8 +71,8 @@ describe('login page', () => {
     const mockFetch = vi.mocked(global.$fetch);
     mockGuestSession(mockFetch);
 
-    const wrapper = await mountSuspended(LoginPage, {
-      global: { stubs: loginStubs },
+    wrapper = await mountSuspended(LoginPage, {
+      global: { stubs: loginStubs, plugins: [pinia] },
     });
 
     expect(wrapper.find('[data-testid="login-email"]').exists()).toBe(true);
@@ -86,8 +92,8 @@ describe('login page', () => {
       return Promise.reject(new Error(`Unexpected fetch: ${url}`));
     });
 
-    const wrapper = await mountSuspended(LoginPage, {
-      global: { stubs: loginStubs },
+    wrapper = await mountSuspended(LoginPage, {
+      global: { stubs: loginStubs, plugins: [pinia] },
     });
 
     const inputs = wrapper.findAll('input');
@@ -100,7 +106,7 @@ describe('login page', () => {
     expect(wrapper.find('[data-testid="login-error"]').text()).toContain('Invalid email or password.');
   });
 
-  it('redirects to /admin after successful login', async () => {
+  it('redirects Admin to /admin after successful login', async () => {
     const mockFetch = vi.mocked(global.$fetch);
     let loggedIn = false;
     mockFetch.mockImplementation((url: string, options?: { method?: string }) => {
@@ -120,6 +126,7 @@ describe('login page', () => {
           userId: '1',
           email: 'admin@example.com',
           role: 'Admin',
+          customerId: null,
           permissions: ['dealerships:read'],
           claims: [],
           expiresAt: futureExpiry,
@@ -128,8 +135,8 @@ describe('login page', () => {
       return Promise.reject(new Error(`Unexpected fetch: ${url}`));
     });
 
-    const wrapper = await mountSuspended(LoginPage, {
-      global: { stubs: loginStubs },
+    wrapper = await mountSuspended(LoginPage, {
+      global: { stubs: loginStubs, plugins: [pinia] },
     });
 
     const inputs = wrapper.findAll('input');
@@ -144,6 +151,48 @@ describe('login page', () => {
     expect(store.isAuthenticated).toBe(true);
   });
 
+  it('redirects User to /booking-start after successful login', async () => {
+    const mockFetch = vi.mocked(global.$fetch);
+    let loggedIn = false;
+    mockFetch.mockImplementation((url: string, options?: { method?: string }) => {
+      if (url === '/api/auth/login' && options?.method === 'POST') {
+        loggedIn = true;
+        return Promise.resolve({
+          expiresAt: futureExpiry,
+          email: 'customer@example.com',
+          role: 'User',
+        });
+      }
+      if (url === '/api/auth/me') {
+        if (!loggedIn) {
+          return Promise.reject(meUnauthorized);
+        }
+        return Promise.resolve({
+          userId: '2',
+          email: 'customer@example.com',
+          role: 'User',
+          customerId: 'customer-1',
+          permissions: ['appointments:read:own'],
+          claims: [],
+          expiresAt: futureExpiry,
+        });
+      }
+      return Promise.reject(new Error(`Unexpected fetch: ${url}`));
+    });
+
+    wrapper = await mountSuspended(LoginPage, {
+      global: { stubs: loginStubs, plugins: [pinia] },
+    });
+
+    const inputs = wrapper.findAll('input');
+    await inputs[0].setValue('customer@example.com');
+    await inputs[1].setValue('password');
+    await wrapper.find('form').trigger('submit.prevent');
+    await vi.waitFor(() => {
+      expect(navigateToMock).toHaveBeenCalledWith('/booking-start');
+    });
+  });
+
   it('redirects authenticated users away from login on mount', async () => {
     tokenCookieRef.value = 'valid.jwt.token';
 
@@ -154,6 +203,7 @@ describe('login page', () => {
           userId: '1',
           email: 'admin@example.com',
           role: 'Admin',
+          customerId: null,
           permissions: [],
           claims: [],
           expiresAt: futureExpiry,
@@ -162,8 +212,8 @@ describe('login page', () => {
       return Promise.reject(new Error(`Unexpected fetch: ${url}`));
     });
 
-    await mountSuspended(LoginPage, {
-      global: { stubs: loginStubs },
+    wrapper = await mountSuspended(LoginPage, {
+      global: { stubs: loginStubs, plugins: [pinia] },
     });
 
     await vi.waitFor(() => {
