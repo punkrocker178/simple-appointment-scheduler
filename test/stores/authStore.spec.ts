@@ -19,6 +19,7 @@ const mockMeResponse: MeBffResponse = {
   userId: 'user-1',
   email: 'admin@example.com',
   role: 'Admin',
+  customerId: null,
   permissions: ['dealerships:read', 'customers:read'],
   claims: [],
   expiresAt: futureExpiry,
@@ -34,6 +35,49 @@ describe('authStore', () => {
   afterEach(() => {
     teardownFetchMock();
     vi.restoreAllMocks();
+  });
+
+  describe('register', () => {
+    it('registers, auto-logs in, and stores customerId from /me', async () => {
+      const mockFetch = vi.mocked(global.$fetch);
+      const userMeResponse: MeBffResponse = {
+        ...mockMeResponse,
+        email: 'customer@example.com',
+        role: 'User',
+        customerId: 'customer-1',
+        permissions: ['appointments:read:own'],
+      };
+
+      mockFetch
+        .mockResolvedValueOnce({
+          expiresAt: futureExpiry,
+          email: 'customer@example.com',
+          role: 'User',
+        })
+        .mockResolvedValueOnce(userMeResponse);
+
+      const store = useAuthStore();
+      await store.register({
+        firstName: 'Jane',
+        lastName: 'Doe',
+        email: 'customer@example.com',
+        password: 'password123',
+      });
+
+      expect(mockFetch).toHaveBeenNthCalledWith(1, '/api/auth/register', {
+        method: 'POST',
+        body: {
+          firstName: 'Jane',
+          lastName: 'Doe',
+          email: 'customer@example.com',
+          password: 'password123',
+        },
+      });
+      expect(store.email).toBe('customer@example.com');
+      expect(store.role).toBe('User');
+      expect(store.customerId).toBe('customer-1');
+      expect(store.isAuthenticated).toBe(true);
+    });
   });
 
   describe('login', () => {

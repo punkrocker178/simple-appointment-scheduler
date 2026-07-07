@@ -3,6 +3,19 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  phone?: string;
+}
+
+export interface RegisterResponse {
+  email: string;
+  role: string;
+}
+
 export interface AuthResponse {
   token: string;
   expiresAt: string;
@@ -26,6 +39,7 @@ export interface MeResponse {
   userId: string;
   email: string;
   role: string;
+  customerId: string | null;
   permissions: string[];
   claims: MeClaim[];
 }
