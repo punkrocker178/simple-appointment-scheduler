@@ -86,11 +86,21 @@ describe('authenticated booking and me BFF routes', () => {
     authenticatedBackendFetchMock.mockResolvedValue({ ok: true });
   });
 
-  it('forwards catalog request with auth', async () => {
-    const handler = (await import('../../server/api/booking/catalog.get')).default;
-    await handler(event);
+  it('forwards service-types request with auth', async () => {
+    authenticatedBackendFetchMock
+      .mockResolvedValueOnce({ dealershipId: 'dealership-1', dealershipName: 'Test Dealership', serviceTypes: [] })
+      .mockResolvedValueOnce([]);
 
-    expect(authenticatedBackendFetchMock).toHaveBeenCalledWith(event, '/api/booking/catalog');
+    const handler = (await import('../../server/api/booking/service-types.get')).default;
+    const result = await handler(event);
+
+    expect(authenticatedBackendFetchMock).toHaveBeenNthCalledWith(1, event, '/api/booking/catalog');
+    expect(authenticatedBackendFetchMock).toHaveBeenNthCalledWith(2, event, '/api/dealerships/dealership-1/service-types');
+    expect(result).toEqual({
+      dealershipId: 'dealership-1',
+      dealershipName: 'Test Dealership',
+      serviceTypes: [],
+    });
   });
 
   it('forwards availability query params with auth', async () => {

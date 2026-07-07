@@ -13,26 +13,61 @@
 </template>
 
 <script setup lang="ts">
-import type { Slot, Service } from '#server/utils/types';
+import { computed } from 'vue';
+import type { AvailabilitySlotDto, ServiceTypeOption, BookingVehicle } from '~/types/api/booking';
+import type { Customer } from '~/types/api';
+import { bookingDateToLocalDate, formatBookingDate, formatBookingTime, slotEndSeconds } from '~/utils/bookingTime';
 
 interface Props {
-  service?: Service | null
-  timeSlot?: Slot | null
-  vehicle?: { plate: string; make?: string; model?: string } | null
-  customer?: { name: string; email: string } | null
+  service?: ServiceTypeOption | null
+  timeSlot?: AvailabilitySlotDto | null
+  bookingDate?: string | null
+  vehicle?: BookingVehicle | null
+  customer?: Customer | null
 }
 
 const props = withDefaults(defineProps<Props>(), {
   service: null,
   timeSlot: null,
+  bookingDate: null,
   vehicle: null,
   customer: null,
 });
 
 const serviceName = computed(() => props.service?.name ?? '-');
-const date = computed(() => props.timeSlot ? new Date(props.timeSlot.startTime).toLocaleDateString() : '-');
-const startTime = computed(() => props.timeSlot ? new Date(props.timeSlot.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-');
-const endTime = computed(() => props.timeSlot ? new Date(props.timeSlot.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '-');
-const vehicleDisplay = computed(() => props.vehicle ? `${props.vehicle.plate}${props.vehicle.make ? ` — ${props.vehicle.make} ${props.vehicle.model ?? ''}` : ''}` : '-');
-const customerDisplay = computed(() => props.customer ? `${props.customer.name} — ${props.customer.email}` : '-');
+
+const bookingDateTime = computed((): Date | null => {
+  if (!props.bookingDate || !props.timeSlot)
+    return null;
+  return bookingDateToLocalDate(props.bookingDate, props.timeSlot.secondsFromMidnight);
+});
+
+const date = computed(() =>
+  bookingDateTime.value ? formatBookingDate(bookingDateTime.value) : '-',
+);
+
+const startTime = computed(() =>
+  bookingDateTime.value ? formatBookingTime(bookingDateTime.value) : '-',
+);
+
+const endTime = computed(() => {
+  if (!props.timeSlot || !props.service)
+    return '-';
+  const endSeconds = slotEndSeconds(
+    props.timeSlot.secondsFromMidnight,
+    props.service.durationMinutes,
+  );
+  const endDate = props.bookingDate
+    ? bookingDateToLocalDate(props.bookingDate, endSeconds)
+    : null;
+  return endDate ? formatBookingTime(endDate) : '-';
+});
+
+const vehicleDisplay = computed(() =>
+  props.vehicle ? `${props.vehicle.make} ${props.vehicle.model} (${props.vehicle.year})` : '-',
+);
+
+const customerDisplay = computed(() =>
+  props.customer ? `${props.customer.firstName} ${props.customer.lastName} — ${props.customer.email}` : '-',
+);
 </script>

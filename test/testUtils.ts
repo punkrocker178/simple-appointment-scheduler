@@ -95,6 +95,107 @@ export function createMockBookingStoreState() {
 }
 
 /**
+ * New mock factories for the real backend booking types
+ */
+export function createMockServiceType(overrides?: Partial<{
+  id: string
+  name: string
+  description: string | null
+  durationMinutes: number
+  price: number
+}>): {
+  id: string;
+  name: string;
+  description: string | null;
+  durationMinutes: number;
+  price: number;
+} {
+  return {
+    id: 's1',
+    name: 'Oil Change',
+    description: 'Standard oil change service',
+    durationMinutes: 30,
+    price: 49.99,
+    ...overrides,
+  };
+}
+
+export function createMockAvailabilitySlot(overrides?: Partial<{
+  secondsFromMidnight: number
+  available: boolean
+}>): {
+  secondsFromMidnight: number;
+  available: boolean;
+} {
+  return {
+    secondsFromMidnight: 28800, // 08:00
+    available: true,
+    ...overrides,
+  };
+}
+
+export function createMockAvailabilityResponse(
+  countOrOverrides?: number | Partial<{
+    bookingDate: string
+    serviceTypeId: string
+    durationMinutes: number
+    slots: Array<{ secondsFromMidnight: number; available: boolean }>
+  }>,
+): {
+  bookingDate: string;
+  serviceTypeId: string;
+  durationMinutes: number;
+  slots: Array<{ secondsFromMidnight: number; available: boolean }>;
+} {
+  const slotCount = typeof countOrOverrides === 'number' ? countOrOverrides : 3;
+  const overrides = typeof countOrOverrides === 'object' ? countOrOverrides : {};
+  return {
+    bookingDate: '2025-05-15',
+    serviceTypeId: 's1',
+    durationMinutes: 30,
+    slots: Array.from({ length: slotCount }, (_, i) =>
+      createMockAvailabilitySlot({ secondsFromMidnight: 28800 + i * 1800 }),
+    ),
+    ...overrides,
+  };
+}
+
+export function createMockAppointmentResponse(overrides?: Partial<{
+  id: string
+  customerId: string
+  vehicleId: string
+  serviceTypeId: string
+  bookingDate: string
+  secondsFromMidnight: number
+  durationMinutes: number
+}>): {
+  id: string;
+  customerId: string;
+  vehicleId: string;
+  serviceTypeId: string;
+  technicianId: string;
+  serviceBayId: string;
+  bookingDate: string;
+  secondsFromMidnight: number;
+  durationMinutes: number;
+  status: 'Scheduled';
+} {
+  return {
+    id: 'apt-456',
+    customerId: 'c1',
+    vehicleId: 'v1',
+    serviceTypeId: 's1',
+    technicianId: 't1',
+    serviceBayId: 'b1',
+    bookingDate: '2025-05-15',
+    secondsFromMidnight: 28800,
+    durationMinutes: 30,
+    status: 'Scheduled',
+    ...overrides,
+  };
+}
+
+/**
  * Vuetify component stubs for unit tests
  * Mocks Vuetify components to isolate business logic from UI library
  */
@@ -112,6 +213,10 @@ export const vuetifyStubs = {
   },
   'v-progress-circular': { template: '<div class="spinner" />' },
   'v-icon': { template: '<span>{{ icon }}</span>', props: ['color'] },
+  'v-radio': { template: '<input type="radio" :value="value" />', props: ['value'] },
+  'v-radio-group': { template: '<div><slot /></div>', props: ['modelValue'] },
+  'v-btn': { template: '<button><slot /></button>', props: ['color', 'variant', 'loading', 'disabled'] },
+  'v-dialog': { template: '<div v-if="modelValue"><slot /></div>', props: ['modelValue'] },
 };
 
 /**

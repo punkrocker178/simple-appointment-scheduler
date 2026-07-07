@@ -2,28 +2,22 @@
   <v-card class="p-6 rounded-xl">
     <div class="text-lg font-semibold text-gray-900 mb-4 rounded-xl">Your Details</div>
 
-    <v-form class="space-y-4">
-      <v-text-field
-        v-model="form.name"
-        label="Full name"
-        required
-        :rules="[rules.required]"
-      />
+    <div v-if="store.customerProfile" class="space-y-2 text-gray-700">
+      <div><span class="font-semibold">Name:</span> {{ fullName }}</div>
+      <div><span class="font-semibold">Email:</span> {{ store.customerProfile.email }}</div>
+      <div v-if="store.customerProfile.phone">
+        <span class="font-semibold">Phone:</span> {{ store.customerProfile.phone }}
+      </div>
+    </div>
 
-      <v-text-field
-        v-model="form.email"
-        label="Email"
-        type="email"
-        required
-        :rules="[rules.required, rules.email]"
-      />
-    </v-form>
+    <div v-else class="text-gray-600">
+      Loading profile...
+    </div>
   </v-card>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
-import type { useBookingStore } from '@/stores/bookingStore';
+import { computed } from 'vue';
 
 interface Props {
   store: ReturnType<typeof useBookingStore>
@@ -31,34 +25,10 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const form = ref({
-  name: '',
-  email: '',
-});
-
-const rules = {
-  required: (v: string) => !!v || 'Required',
-  email: (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || 'Invalid email',
-};
-
-// Watch form changes and update store
-watch(
-  () => form.value.name,
-  (newName) => {
-    props.store.setCustomer(newName, form.value.email);
-  },
-);
-
-watch(
-  () => form.value.email,
-  (newEmail) => {
-    props.store.setCustomer(form.value.name, newEmail);
-  },
-);
-
-// Initialize form from store
-onMounted(() => {
-  form.value.name = props.store.customer.name;
-  form.value.email = props.store.customer.email;
+const fullName = computed((): string => {
+  const profile = props.store.customerProfile;
+  if (!profile)
+    return '';
+  return `${profile.firstName} ${profile.lastName}`.trim();
 });
 </script>

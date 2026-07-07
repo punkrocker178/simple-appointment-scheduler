@@ -1,95 +1,74 @@
 /**
- * useApiClient - Wrapper around $fetch for API calls with error handling
+ * useApiClient - Wrapper around $fetch for booking API calls
  *
- * Provides typed HTTP methods for communicating with Nitro backend.
- * All responses are typed based on the endpoint contract.
- *
- * @returns {Object} API methods
- * - fetchServices(): Returns services list
- * - fetchAvailability(serviceId, date): Returns available slots
- * - createAppointment(data): Posts appointment and returns confirmation
- * - fetchAppointments(): Returns all appointments
+ * Provides typed HTTP methods for communicating with the BFF proxies that
+ * forward to the real .NET backend.
  */
 
-import type { Service, Slot, Appointment, AvailabilityResponse } from '#server/utils/types';
+import type {
+  AppointmentResponse,
+  AvailabilityResponse,
+  BookingServiceTypesResponse,
+  CreateAppointmentRequest,
+} from '~/types/api/booking';
 
-export interface AppointmentPayload {
-  serviceId: number 
-  startTime: number 
-  endTime: number 
-  vehiclePlate: string
-  vehicleMake?: string
-  vehicleModel?: string
-  customerName: string
-  customerEmail: string
+export interface BookingServiceTypesResult {
+  dealershipId: string;
+  dealershipName: string;
+  serviceTypes: Array<{
+    id: string;
+    name: string;
+    description: string | null;
+    durationMinutes: number;
+    price: number;
+  }>;
 }
 
-export interface CreateAppointmentResponse {
-  appointmentId: string
-  bookingReference: string
-  appointment: Appointment
+export interface CreateAppointmentResult {
+  appointmentId: string;
+  appointment: AppointmentResponse;
 }
 
 /**
- * Fetch services from the API
+ * Fetch active service types for the default dealership
  */
-export async function fetchServices(): Promise<Service[]> {
-  try {
-    const response = await $fetch<{ services: Service[] }>('/api/services');
-    return response.services;
-  }
-  catch (error) {
-    console.error('Error fetching services:', error);
-    throw error;
-  }
+export async function fetchServices(): Promise<BookingServiceTypesResult> {
+  const response = await $fetch<BookingServiceTypesResponse>('/api/booking/service-types');
+  return {
+    dealershipId: response.dealershipId,
+    dealershipName: response.dealershipName,
+    serviceTypes: response.serviceTypes,
+  };
 }
 
 /**
  * Fetch available slots for a service and date
  */
-export async function fetchAvailability(serviceId: number, date: string): Promise<Slot[]> {
-  try {
-    const response = await $fetch<AvailabilityResponse>('/api/availability', {
-      query: {
-        serviceId,
-        date,
-      },
-    });
-    return response.slots;
-  }
-  catch (error) {
-    console.error('Error fetching availability:', error);
-    throw error;
-  }
+export async function fetchAvailability(
+  dealershipId: string,
+  serviceTypeId: string,
+  date: string,
+): Promise<AvailabilityResponse> {
+  return await $fetch<AvailabilityResponse>('/api/booking/availability', {
+    query: {
+      dealershipId,
+      serviceTypeId,
+      date,
+    },
+  });
 }
 
 /**
  * Create a new appointment
  */
-export async function createAppointment(payload: AppointmentPayload): Promise<CreateAppointmentResponse> {
-  try {
-    const response = await $fetch<CreateAppointmentResponse>('/api/appointments', {
-      method: 'POST',
-      body: payload,
-    });
-    return response;
-  }
-  catch (error) {
-    console.error('Error creating appointment:', error);
-    throw error;
-  }
-}
+export async function createAppointment(payload: CreateAppointmentRequest): Promise<CreateAppointmentResult> {
+  const appointment = await $fetch<AppointmentResponse>('/api/booking/appointments', {
+    method: 'POST',
+    body: payload,
+  });
 
-/**
- * Fetch all appointments
- */
-export async function fetchAppointments(): Promise<Appointment[]> {
-  try {
-    const response = await $fetch<{ appointments: Appointment[] }>('/api/appointments');
-    return response.appointments;
-  }
-  catch (error) {
-    console.error('Error fetching appointments:', error);
-    throw error;
-  }
+  return {
+    appointmentId: appointment.id,
+    appointment,
+  };
 }

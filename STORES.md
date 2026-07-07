@@ -37,37 +37,41 @@ Manages JWT session metadata for admin/staff and customer users. The JWT itself 
 
 ### `bookingStore` — `app/stores/bookingStore.ts`
 
-Central state for the customer booking flow (Nitro mocks). See [ARCHITECTURE.md](./ARCHITECTURE.md) for the full booking workflow.
+Central state for the authenticated customer booking flow backed by the real .NET API. See [ARCHITECTURE.md](./ARCHITECTURE.md) for the full booking workflow.
 
 | State | Type | Purpose |
 |-------|------|---------|
-| `services` | `Service[]` | Available services catalog |
-| `selectedServiceId` | `number \| null` | Selected service |
+| `services` | `ServiceTypeOption[]` | Active service types from `/api/booking/service-types` |
+| `dealershipId` | `string \| null` | Default dealership resolved by the BFF |
+| `selectedServiceTypeId` | `string \| null` | Selected service type GUID |
 | `selectedDate` | `string` | Booking date (YYYY-MM-DD) |
-| `availableSlots` | `Slot[]` | Slots for selected date/service |
-| `selectedSlot` | `Slot \| null` | Chosen time slot |
-| `vehicle` | `{ plate, make?, model? }` | Vehicle info |
-| `customer` | `{ name, email }` | Customer contact |
-| `appointmentId` | `string \| null` | Created appointment ID |
-| `bookingReference` | `string \| null` | Confirmation reference |
-| `confirmation` | `Appointment \| null` | Full appointment after booking |
+| `availabilityResponse` | `AvailabilityResponse \| null` | Full backend availability response |
+| `slots` | `AvailabilitySlotDto[]` | All time slots for selected date/service |
+| `selectedSlot` | `AvailabilitySlotDto \| null` | Chosen time slot (`secondsFromMidnight`) |
+| `vehicles` | `BookingVehicle[]` | Customer's saved vehicles from `/api/me/vehicles` |
+| `selectedVehicleId` | `string \| null` | Selected vehicle GUID |
+| `customerProfile` | `Customer \| null` | Customer profile from `/api/me/customer` |
+| `appointment` | `AppointmentResponse \| null` | Created appointment from backend |
 | `isLoading` | `boolean` | API in progress |
 | `error` | `string \| null` | Last error |
 
 | Getter | Purpose |
 |--------|---------|
-| `selectedService` | Full `Service` for `selectedServiceId` |
+| `selectedService` | Full `ServiceTypeOption` for `selectedServiceTypeId` |
+| `selectedVehicle` | Full `BookingVehicle` for `selectedVehicleId` |
+| `availableSlots` | Slots where `available` is true |
 | `isBookingComplete` | All required booking fields filled |
 
 | Action | Purpose |
 |--------|---------|
-| `loadServices()` | Fetch service catalog |
-| `selectService(id)` | Set service; reset date/slots |
+| `bootstrap()` | Load service types, vehicles, and customer profile |
+| `selectServiceType(id)` | Set service type; reset date/slots |
 | `selectDate(date)` | Set date; clear slot |
-| `fetchAvailability(date)` | Load slots |
+| `fetchAvailability(date)` | Load slots from `/api/booking/availability` |
 | `selectSlot(slot)` | Select time slot |
-| `setVehicle(...)` / `setCustomer(...)` | Update contact info |
-| `submitBooking()` | Create appointment |
+| `selectVehicle(id)` | Select an existing saved vehicle |
+| `addVehicle(make, model, year)` | Create and select a new vehicle via `/api/me/vehicles` |
+| `submitBooking()` | Create appointment with `customerId`, `vehicleId`, `serviceTypeId`, `bookingDate`, `secondsFromMidnight` |
 | `resetBooking()` | Clear all state |
 
 ---
@@ -82,4 +86,4 @@ Central state for the customer booking flow (Nitro mocks). See [ARCHITECTURE.md]
 
 ---
 
-**Last updated:** July 6, 2026
+**Last updated:** July 7, 2026

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+definePageMeta({ middleware: 'auth' });
+
 const store = useBookingStore();
 
 onMounted(() => {
@@ -11,8 +13,8 @@ const handleSubmit = async (): Promise<void> => {
   try {
     await store.submitBooking();
     navigateTo('/summary');
-  } catch (err: unknown) {
-    // Error is stored in store.error
+  }
+  catch (err: unknown) {
     console.error('Booking submission failed:', err);
   }
 };
@@ -34,9 +36,9 @@ const handleBack = (): void => {
       <ConfirmationPanel
         :time-slot="store.selectedSlot"
         :service="store.selectedService"
-        :date="store.selectedDate"
-        :vehicle="store.vehicle"
-        :customer="store.customer"
+        :booking-date="store.selectedDate"
+        :vehicle="store.selectedVehicle"
+        :customer="store.customerProfile"
       />
 
       <div class="flex justify-between">
