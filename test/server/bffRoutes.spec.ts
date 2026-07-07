@@ -175,4 +175,32 @@ describe('authenticated booking and me BFF routes', () => {
       '/api/dealerships/dealership-1/appointments?date=2026-07-07',
     );
   });
+
+  it('forwards appointment status patch with auth', async () => {
+    getRouterParamMock.mockReturnValue('apt-1');
+    readBodyMock.mockResolvedValue({ status: 1 });
+
+    const handler = (await import('../../server/api/admin/appointments/[id]/status.patch')).default;
+    await handler(event);
+
+    expect(authenticatedBackendFetchMock).toHaveBeenCalledWith(
+      event,
+      '/api/appointments/apt-1/status',
+      { method: 'PATCH', body: { status: 1 } },
+    );
+  });
+
+  it('forwards appointment cancel with auth', async () => {
+    getRouterParamMock.mockReturnValue('apt-1');
+    readBodyMock.mockResolvedValue({ reason: 'Customer request' });
+
+    const handler = (await import('../../server/api/admin/appointments/[id]/cancel.post')).default;
+    await handler(event);
+
+    expect(authenticatedBackendFetchMock).toHaveBeenCalledWith(
+      event,
+      '/api/appointments/apt-1/cancel',
+      { method: 'POST', body: { reason: 'Customer request' } },
+    );
+  });
 });

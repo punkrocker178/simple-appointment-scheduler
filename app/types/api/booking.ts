@@ -39,6 +39,14 @@ export interface CreateAppointmentRequest {
   secondsFromMidnight: number;
 }
 
+export interface UpdateAppointmentStatusRequest {
+  status: AppointmentStatus;
+}
+
+export interface CancelAppointmentRequest {
+  reason: string;
+}
+
 export enum AppointmentStatus {
   Scheduled = 0,
   InProgress = 1,
@@ -57,4 +65,8 @@ export interface AppointmentResponse {
   secondsFromMidnight: number;
   durationMinutes: number;
   status: AppointmentStatus;
+  cancellationReason?: string | null;
+  startedAtUtc?: string | null;
+  completedAtUtc?: string | null;
+  cancelledAtUtc?: string | null;
 }

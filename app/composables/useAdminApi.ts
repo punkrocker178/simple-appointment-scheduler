@@ -6,6 +6,8 @@
  */
 import type {
   AppointmentResponse,
+  AppointmentStatus,
+  CancelAppointmentRequest,
   CreateCustomerRequest,
   CreateDealershipRequest,
   CreateServiceBayRequest,
@@ -25,6 +27,7 @@ import type {
   UpdateServiceTypeRequest,
   UpdateTechnicianRequest,
   UpdateVehicleRequest,
+  UpdateAppointmentStatusRequest,
   Vehicle,
 } from '~/types/api';
 import { getApiErrorStatusCode, toApiError } from '~/utils/apiErrors';
@@ -152,6 +155,18 @@ export function useAdminApi() {
   ): Promise<AppointmentResponse[]> =>
     adminFetch(`/api/admin/dealerships/${dealershipId}/appointments?date=${date}`);
 
+  const updateAppointmentStatus = (
+    id: string,
+    body: UpdateAppointmentStatusRequest,
+  ): Promise<AppointmentResponse> =>
+    adminFetch(`/api/admin/appointments/${id}/status`, { method: 'PATCH', body });
+
+  const cancelAppointment = (
+    id: string,
+    body: CancelAppointmentRequest,
+  ): Promise<AppointmentResponse> =>
+    adminFetch(`/api/admin/appointments/${id}/cancel`, { method: 'POST', body });
+
   return {
     fetchSkills,
     createSkill,
@@ -179,5 +194,7 @@ export function useAdminApi() {
     updateVehicle,
     deleteVehicle,
     fetchDealershipAppointments,
+    updateAppointmentStatus,
+    cancelAppointment,
   };
 }

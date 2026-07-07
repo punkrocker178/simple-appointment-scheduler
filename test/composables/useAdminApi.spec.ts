@@ -99,4 +99,32 @@ describe('useAdminApi', () => {
     );
     expect(appointments).toHaveLength(1);
   });
+
+  it('updates appointment status', async () => {
+    const mockFetch = vi.mocked(global.$fetch);
+    mockFetch.mockResolvedValueOnce({ id: 'apt-1', status: 1 });
+
+    const { updateAppointmentStatus } = withSetup(() => useAdminApi());
+    const result = await updateAppointmentStatus('apt-1', { status: 1 });
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      '/api/admin/appointments/apt-1/status',
+      { method: 'PATCH', body: { status: 1 } },
+    );
+    expect(result.status).toBe(1);
+  });
+
+  it('cancels appointment with reason', async () => {
+    const mockFetch = vi.mocked(global.$fetch);
+    mockFetch.mockResolvedValueOnce({ id: 'apt-1', status: 3 });
+
+    const { cancelAppointment } = withSetup(() => useAdminApi());
+    const result = await cancelAppointment('apt-1', { reason: 'No-show' });
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      '/api/admin/appointments/apt-1/cancel',
+      { method: 'POST', body: { reason: 'No-show' } },
+    );
+    expect(result.status).toBe(3);
+  });
 });

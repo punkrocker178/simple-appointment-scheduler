@@ -31,7 +31,7 @@ Use this document to track frontend integration work. Update checkboxes and the 
 | F5 | Error handling & UX | ✅ Done | ProblemDetails mapping, 401/403 flows, validators, skeletons |
 | F6 | Tests & docs | ✅ Done | Unit tests, ARCHITECTURE.md / STORES.md updates |
 | F7 | Customer self-service booking | ✅ Done | Auth + BFF + booking flow on .NET; mocks retired |
-| F8 | Appointment admin | 🔶 Partial | Daily schedule view done; lifecycle APIs deferred |
+| F8 | Appointment admin | 🔶 Partial | Daily schedule + lifecycle actions on admin grid |
 
 ---
 
@@ -173,15 +173,16 @@ Sub-phases F7a–F7d landed the backend identity/self-service APIs, auth BFF, an
 | Task | Status | Notes |
 |------|--------|-------|
 | Daily schedule view | ✅ | `GET /api/dealerships/{id}/appointments?date=` — `admin/dealerships/[id]/appointments.vue` |
-| Status transitions UI | ↪ | Blocked on backend Phase 5 |
-| Cancel appointment UI | ↪ | Blocked on backend Phase 5 |
+| Status transitions UI | ✅ | Start/Complete actions on admin appointments grid |
+| Cancel appointment UI | ✅ | Cancel dialog + `POST /api/admin/appointments/{id}/cancel` BFF |
+| Customer self-service cancel | ↪ | Optional — `/api/me/appointments` cancel button |
 
 ---
 
 ## Recommended next session
 
-1. **F8 remainder** — Appointment status transitions and cancel UI (blocked on backend Phase 5 lifecycle APIs).
-2. Manual smoke test: register customer → add vehicle → book appointment → confirm summary; admin views daily schedule.
+1. Manual smoke test: admin starts/completes/cancels appointment on daily schedule grid.
+2. Optional: customer self-service cancel on `/api/me/appointments`.
 
 ---
 
