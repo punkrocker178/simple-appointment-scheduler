@@ -46,7 +46,7 @@ Central state for the authenticated customer booking flow backed by the real .NE
 | `selectedServiceTypeId` | `string \| null` | Selected service type GUID |
 | `selectedDate` | `string` | Booking date (YYYY-MM-DD) |
 | `availabilityResponse` | `AvailabilityResponse \| null` | Full backend availability response |
-| `availableSlots` | `AvailabilitySlotDto[]` | Slots for selected date/service |
+| `slots` | `AvailabilitySlotDto[]` | All time slots for selected date/service |
 | `selectedSlot` | `AvailabilitySlotDto \| null` | Chosen time slot (`secondsFromMidnight`) |
 | `vehicles` | `BookingVehicle[]` | Customer's saved vehicles from `/api/me/vehicles` |
 | `selectedVehicleId` | `string \| null` | Selected vehicle GUID |
@@ -59,6 +59,7 @@ Central state for the authenticated customer booking flow backed by the real .NE
 |--------|---------|
 | `selectedService` | Full `ServiceTypeOption` for `selectedServiceTypeId` |
 | `selectedVehicle` | Full `BookingVehicle` for `selectedVehicleId` |
+| `availableSlots` | Slots where `available` is true |
 | `isBookingComplete` | All required booking fields filled |
 
 | Action | Purpose |

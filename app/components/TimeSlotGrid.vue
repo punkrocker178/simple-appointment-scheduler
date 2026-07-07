@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-3">
-    <div class="text-lg font-semibold text-gray-900">Available Time Slots</div>
+    <div class="text-lg font-semibold text-gray-900">Time Slots</div>
 
     <div v-if="isLoading" class="py-6 text-center">
       <v-progress-circular indeterminate color="primary" />
@@ -14,16 +14,21 @@
       <v-card
         v-for="slot in slots"
         :key="slot.secondsFromMidnight"
-        class="p-3 cursor-pointer hover:shadow-md transition-all rounded-xl"
-        :class="selectedSlot === slot ? 'border-2 border-blue-500 text-white' : 'bg-white'"
+        class="p-3 transition-all rounded-xl"
+        :class="slotCardClass(slot)"
+        :disabled="!slot.available"
         @click="select(slot)"
       >
         <div class="flex items-center justify-between">
           <div>
-            <div class="font-semibold text-gray-900">{{ formatTime(slot.secondsFromMidnight) }}</div>
-            <div class="text-sm text-gray-500">{{ formatEndTime(slot.secondsFromMidnight) }}</div>
+            <div class="font-semibold" :class="slot.available ? 'text-gray-900' : 'text-gray-400'">
+              {{ formatTime(slot.secondsFromMidnight) }}
+            </div>
+            <div class="text-sm" :class="slot.available ? 'text-gray-500' : 'text-gray-300'">
+              {{ formatEndTime(slot.secondsFromMidnight) }}
+            </div>
           </div>
-          <div>
+          <div v-if="slot.available">
             <v-icon color="green">mdi-check-circle</v-icon>
           </div>
         </div>
@@ -60,7 +65,19 @@ function formatEndTime(secondsFromMidnight: number): string {
   return secondsToTimeLabel(slotEndSeconds(secondsFromMidnight, props.durationMinutes));
 }
 
-function select(slot: AvailabilitySlotDto) {
+function slotCardClass(slot: AvailabilitySlotDto): string {
+  if (!slot.available) {
+    return 'time-slot--disabled';
+  }
+  if (selectedSlot.value === slot) {
+    return 'border-2 border-blue-500 text-white cursor-pointer hover:shadow-md';
+  }
+  return 'bg-white cursor-pointer hover:shadow-md';
+}
+
+function select(slot: AvailabilitySlotDto): void {
+  if (!slot.available)
+    return;
   selectedSlot.value = slot;
   emit('selected', slot);
 }

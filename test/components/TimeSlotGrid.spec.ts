@@ -10,17 +10,17 @@ import { createMockAvailabilitySlot, vuetifyStubs } from '../testUtils';
 
 describe('TimeSlotGrid Component', () => {
   describe('rendering', () => {
-    it('should render heading with available slots count', async () => {
+    it('should render heading', async () => {
       const slots = [createMockAvailabilitySlot(), createMockAvailabilitySlot()];
       const wrapper = await mountSuspended(TimeSlotGrid, {
         props: { slots, durationMinutes: 30, isLoading: false },
         global: { stubs: vuetifyStubs },
       });
 
-      expect(wrapper.text()).toContain('Available Time Slots');
+      expect(wrapper.text()).toContain('Time Slots');
     });
 
-    it('should render slot cards for each available slot', async () => {
+    it('should render slot cards for each slot', async () => {
       const slots = [
         createMockAvailabilitySlot(),
         createMockAvailabilitySlot(),
@@ -32,9 +32,23 @@ describe('TimeSlotGrid Component', () => {
       });
 
       const cards = wrapper.findAll('div').filter(el =>
-        el.classes().includes('cursor-pointer'),
+        el.classes().includes('cursor-pointer') || el.classes().includes('cursor-not-allowed'),
       );
       expect(cards.length).toBeGreaterThanOrEqual(3);
+    });
+
+    it('should render unavailable slots with greyed-out styling', async () => {
+      const slots = [
+        createMockAvailabilitySlot({ available: true }),
+        createMockAvailabilitySlot({ secondsFromMidnight: 30600, available: false }),
+      ];
+      const wrapper = await mountSuspended(TimeSlotGrid, {
+        props: { slots, durationMinutes: 30, isLoading: false },
+        global: { stubs: vuetifyStubs },
+      });
+
+      const unavailableCard = wrapper.find('div.time-slot--disabled');
+      expect(unavailableCard.exists()).toBe(true);
     });
   });
 
@@ -64,6 +78,19 @@ describe('TimeSlotGrid Component', () => {
       await slotCard.trigger('click');
 
       expect(wrapper.emitted('selected')?.[0]?.[0]).toEqual(slot);
+    });
+
+    it('should not emit selected event when clicking unavailable slot', async () => {
+      const slot = createMockAvailabilitySlot({ available: false });
+      const wrapper = await mountSuspended(TimeSlotGrid, {
+        props: { slots: [slot], durationMinutes: 30, isLoading: false },
+        global: { stubs: vuetifyStubs },
+      });
+
+      const slotCard = wrapper.find('div.time-slot--disabled');
+      await slotCard.trigger('click');
+
+      expect(wrapper.emitted('selected')).toBeFalsy();
     });
   });
 

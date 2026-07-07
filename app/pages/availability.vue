@@ -50,7 +50,7 @@ const handleBack = (): void => {
       />
 
       <TimeSlotGrid
-        :slots="store.availableSlots"
+        :slots="store.slots"
         :duration-minutes="store.availabilityResponse?.durationMinutes ?? store.selectedService?.durationMinutes ?? 0"
         :is-loading="store.isLoading"
         @selected="handleSlotSelect"

@@ -14,6 +14,7 @@ export interface BookingServiceTypesResponse {
 
 export interface AvailabilitySlotDto {
   secondsFromMidnight: number;
+  available: boolean;
 }
 
 export interface AvailabilityResponse {

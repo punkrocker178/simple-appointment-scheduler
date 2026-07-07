@@ -7,7 +7,7 @@
  * - selectedServiceTypeId: Currently selected service type id
  * - selectedDate: Currently selected booking date (yyyy-MM-dd)
  * - availabilityResponse: Full backend availability response
- * - availableSlots: Slots available for selected date/service
+ * - slots: All time slots for selected date/service (available and unavailable)
  * - selectedSlot: Currently selected time slot (secondsFromMidnight)
  * - vehicles: Customer's saved vehicles
  * - selectedVehicleId: Currently selected vehicle id
@@ -19,6 +19,7 @@
  * **Getters:**
  * - selectedService: Full service type object for selectedServiceTypeId
  * - selectedVehicle: Full vehicle object for selectedVehicleId
+ * - availableSlots: Slots where available is true
  * - isBookingComplete: Whether all required fields are filled
  *
  * **Actions:**
@@ -52,7 +53,7 @@ export const useBookingStore = defineStore('bookingStore', () => {
   const selectedServiceTypeId = ref<string | null>(null);
   const selectedDate = ref<string>('');
   const availabilityResponse = ref<AvailabilityResponse | null>(null);
-  const availableSlots = ref<AvailabilitySlotDto[]>([]);
+  const slots = ref<AvailabilitySlotDto[]>([]);
   const selectedSlot = ref<AvailabilitySlotDto | null>(null);
   const vehicles = ref<BookingVehicle[]>([]);
   const selectedVehicleId = ref<string | null>(null);
@@ -69,6 +70,10 @@ export const useBookingStore = defineStore('bookingStore', () => {
   const selectedVehicle = computed((): BookingVehicle | undefined => {
     return vehicles.value.find(v => v.id === selectedVehicleId.value);
   });
+
+  const availableSlots = computed((): AvailabilitySlotDto[] =>
+    slots.value.filter(s => s.available),
+  );
 
   const isBookingComplete = computed((): boolean => {
     return Boolean(
@@ -111,7 +116,7 @@ export const useBookingStore = defineStore('bookingStore', () => {
     selectedServiceTypeId.value = id;
     selectedDate.value = '';
     availabilityResponse.value = null;
-    availableSlots.value = [];
+    slots.value = [];
     selectedSlot.value = null;
   };
 
@@ -119,7 +124,7 @@ export const useBookingStore = defineStore('bookingStore', () => {
     selectedDate.value = date;
     selectedSlot.value = null;
     availabilityResponse.value = null;
-    availableSlots.value = [];
+    slots.value = [];
   };
 
   const fetchAvailability = async (date: string): Promise<void> => {
@@ -137,13 +142,13 @@ export const useBookingStore = defineStore('bookingStore', () => {
         date,
       );
       availabilityResponse.value = result;
-      availableSlots.value = result.slots;
+      slots.value = result.slots;
       selectedDate.value = date;
     }
     catch (err) {
       error.value = (err as Error).message || 'Failed to fetch availability';
       availabilityResponse.value = null;
-      availableSlots.value = [];
+      slots.value = [];
     }
     finally {
       isLoading.value = false;
@@ -151,6 +156,8 @@ export const useBookingStore = defineStore('bookingStore', () => {
   };
 
   const selectSlot = (slot: AvailabilitySlotDto): void => {
+    if (!slot.available)
+      return;
     selectedSlot.value = slot;
   };
 
@@ -210,7 +217,7 @@ export const useBookingStore = defineStore('bookingStore', () => {
     selectedServiceTypeId.value = null;
     selectedDate.value = '';
     availabilityResponse.value = null;
-    availableSlots.value = [];
+    slots.value = [];
     selectedSlot.value = null;
     vehicles.value = [];
     selectedVehicleId.value = null;
@@ -226,7 +233,7 @@ export const useBookingStore = defineStore('bookingStore', () => {
     selectedServiceTypeId,
     selectedDate,
     availabilityResponse,
-    availableSlots,
+    slots,
     selectedSlot,
     vehicles,
     selectedVehicleId,
@@ -237,6 +244,7 @@ export const useBookingStore = defineStore('bookingStore', () => {
     // Getters
     selectedService,
     selectedVehicle,
+    availableSlots,
     isBookingComplete,
     // Actions
     bootstrap,

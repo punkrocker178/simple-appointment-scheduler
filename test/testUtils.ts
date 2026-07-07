@@ -122,11 +122,14 @@ export function createMockServiceType(overrides?: Partial<{
 
 export function createMockAvailabilitySlot(overrides?: Partial<{
   secondsFromMidnight: number
+  available: boolean
 }>): {
   secondsFromMidnight: number;
+  available: boolean;
 } {
   return {
     secondsFromMidnight: 28800, // 08:00
+    available: true,
     ...overrides,
   };
 }
@@ -136,13 +139,13 @@ export function createMockAvailabilityResponse(
     bookingDate: string
     serviceTypeId: string
     durationMinutes: number
-    slots: Array<{ secondsFromMidnight: number }>
+    slots: Array<{ secondsFromMidnight: number; available: boolean }>
   }>,
 ): {
   bookingDate: string;
   serviceTypeId: string;
   durationMinutes: number;
-  slots: Array<{ secondsFromMidnight: number }>;
+  slots: Array<{ secondsFromMidnight: number; available: boolean }>;
 } {
   const slotCount = typeof countOrOverrides === 'number' ? countOrOverrides : 3;
   const overrides = typeof countOrOverrides === 'object' ? countOrOverrides : {};
