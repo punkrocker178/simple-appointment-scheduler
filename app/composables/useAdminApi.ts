@@ -5,6 +5,7 @@
  * Handles 401 (logout + redirect) and 403 (snackbar) globally.
  */
 import type {
+  AppointmentResponse,
   CreateCustomerRequest,
   CreateDealershipRequest,
   CreateServiceBayRequest,
@@ -145,6 +146,12 @@ export function useAdminApi() {
   const deleteVehicle = (customerId: string, id: string): Promise<void> =>
     adminFetch(`/api/admin/customers/${customerId}/vehicles/${id}`, { method: 'DELETE' });
 
+  const fetchDealershipAppointments = (
+    dealershipId: string,
+    date: string,
+  ): Promise<AppointmentResponse[]> =>
+    adminFetch(`/api/admin/dealerships/${dealershipId}/appointments?date=${date}`);
+
   return {
     fetchSkills,
     createSkill,
@@ -171,5 +178,6 @@ export function useAdminApi() {
     createVehicle,
     updateVehicle,
     deleteVehicle,
+    fetchDealershipAppointments,
   };
 }

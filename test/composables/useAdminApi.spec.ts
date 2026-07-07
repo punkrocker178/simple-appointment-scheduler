@@ -85,4 +85,18 @@ describe('useAdminApi', () => {
     expect(notification.value?.message).toContain('permission');
     expect(notification.value?.color).toBe('error');
   });
+
+  it('fetches dealership appointments for a date', async () => {
+    const mockFetch = vi.mocked(global.$fetch);
+    mockFetch.mockResolvedValueOnce([{ id: 'apt-1', status: 0 }]);
+
+    const { fetchDealershipAppointments } = withSetup(() => useAdminApi());
+    const appointments = await fetchDealershipAppointments('dealership-1', '2026-07-07');
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      '/api/admin/dealerships/dealership-1/appointments?date=2026-07-07',
+      undefined,
+    );
+    expect(appointments).toHaveLength(1);
+  });
 });

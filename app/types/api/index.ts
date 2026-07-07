@@ -25,8 +25,9 @@ export type {
   BookingVehicle,
   CreateAppointmentRequest,
   AppointmentResponse,
-  AppointmentStatus,
 } from './booking';
+
+export { AppointmentStatus } from './booking';
 
 export type { Skill, CreateSkillRequest } from './skill';
 
