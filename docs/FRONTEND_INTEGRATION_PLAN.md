@@ -1,7 +1,7 @@
 # Frontend–Backend Integration Plan
 
-**Status:** F5–F6 complete — booking migration (F7) next  
-**Last updated:** 2026-07-06  
+**Status:** F7 complete — customer self-service booking on .NET BFF  
+**Last updated:** 2026-07-07  
 **Tracker:** [FRONTEND_INTEGRATION_TRACKER.md](./FRONTEND_INTEGRATION_TRACKER.md)  
 **Related:** [ARCHITECTURE.md](../ARCHITECTURE.md), [AGENTS.md](../AGENTS.md), [backend IMPLEMENTATION_PLAN.md](../../simple-appointment-scheduler-be/docs/IMPLEMENTATION_PLAN.md)
 
@@ -14,7 +14,7 @@ Connect the Nuxt frontend to the .NET backend API in two stages:
 1. **Login** — JWT auth against `POST /api/auth/login`, session via Pinia + persisted storage
 2. **Admin CRUD** — pages to manage all Phase 3 entities (dealerships, skills, service types, bays, technicians, customers, vehicles)
 
-**Out of scope (deferred):** Customer booking flow migration from Nitro mocks to .NET; appointment admin views (blocked on backend Phase 5); register page.
+**Out of scope (deferred):** Appointment admin views (blocked on backend Phase 5).
 
 ---
 

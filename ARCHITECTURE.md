@@ -4,7 +4,7 @@
 
 The **Universal Scheduler** is a Nuxt 4 application with two main areas:
 
-1. **Customer booking flow** — four-step appointment booking (vehicle/service → availability → confirmation → summary), backed by local Nitro mocks.
+1. **Customer booking flow** — four-step authenticated appointment booking (vehicle/service → availability → confirmation → summary), backed by Nitro BFF proxies to the .NET API.
 2. **Admin integration** — JWT auth and CRUD for dealerships, skills, service types, bays, technicians, customers, and vehicles via a Nitro BFF proxy to the .NET API.
 
 Design and progress: [docs/FRONTEND_INTEGRATION_PLAN.md](docs/FRONTEND_INTEGRATION_PLAN.md) | [docs/FRONTEND_INTEGRATION_TRACKER.md](docs/FRONTEND_INTEGRATION_TRACKER.md)
@@ -17,11 +17,10 @@ The customer flow follows a **Pinia-Centric Sequential Flow** pattern. The admin
 
 ### BFF proxy pattern
 
-The browser calls relative `/api/*` on Nuxt. Admin and auth Nitro routes forward to the .NET backend (`NUXT_API_BASE_URL`). The JWT is stored in an httpOnly cookie; the client never calls .NET directly.
+The browser calls relative `/api/*` on Nuxt. Auth, admin, booking, and me Nitro routes forward to the .NET backend (`NUXT_API_BASE_URL`). The JWT is stored in an httpOnly cookie; the client never calls .NET directly.
 
 ```
-Browser → Nuxt Nitro (/api/auth/*, /api/admin/*) → .NET API
-Booking pages → Nitro mocks (/api/services, /api/availability, …) — unchanged
+Browser → Nuxt Nitro (/api/auth/*, /api/admin/*, /api/booking/*, /api/me/*) → .NET API
 ```
 
 ### Auth flow
@@ -31,7 +30,7 @@ Booking pages → Nitro mocks (/api/services, /api/availability, …) — unchan
 | Login | `POST /api/auth/login` → Nitro sets httpOnly cookie + returns metadata |
 | Session | `authStore` holds `email`, `role`, `permissions`, `expiresAt` from `/api/auth/me` |
 | Guards | `auth` middleware (cookie / `isAuthenticated`); `admin` middleware (`dealerships:read` or `customers:read`) |
-| 401 | `useAdminApi` / `authStore` logout + redirect `/login` |
+| 401 | `useAdminApi` / `useBookingApi` / `authStore` logout + redirect `/login` |
 | 403 | Snackbar in admin layout + `/forbidden` page for route-level denial |
 
 ### Admin CRUD layer
@@ -186,7 +185,6 @@ Composables are reusable Composition API functions that encapsulate API logic, c
 | **useServices** | `app/composables/useServices.ts` | Fetch and cache service catalog; prevents re-fetching on repeated calls | `bookingStore.loadServices()` |
 | **useAvailability** | `app/composables/useAvailability.ts` | Fetch and cache time slots for a service/date; handles loading/error states | `bookingStore.fetchAvailability()` |
 | **useDateValidation** | `app/composables/useDateValidation.ts` | Validate booking dates (no Sundays, must be 2+ hours in future for same-day bookings) | `DatePicker` component |
-| **useBooking** | `app/composables/useBooking.ts` | Form state management (appears redundant with store; not actively used) | - |
 
 #### API Integration Flow
 

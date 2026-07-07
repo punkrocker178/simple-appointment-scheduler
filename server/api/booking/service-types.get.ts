@@ -1,15 +1,8 @@
 import { authenticatedBackendFetch } from '../../utils/authenticatedBackendFetch';
 
-interface BackendCatalog {
+interface BackendDefaultDealership {
   dealershipId: string;
   dealershipName: string;
-  serviceTypes: Array<{
-    id: string;
-    name: string;
-    description: string | null;
-    durationMinutes: number;
-    price: number;
-  }>;
 }
 
 interface BackendServiceType {
@@ -38,15 +31,18 @@ export interface BookingServiceTypesResponse {
 }
 
 export default defineEventHandler(async (event): Promise<BookingServiceTypesResponse> => {
-  const catalog = await authenticatedBackendFetch<BackendCatalog>(event, '/api/booking/catalog');
+  const dealership = await authenticatedBackendFetch<BackendDefaultDealership>(
+    event,
+    '/api/booking/dealership',
+  );
   const serviceTypes = await authenticatedBackendFetch<BackendServiceType[]>(
     event,
-    `/api/dealerships/${catalog.dealershipId}/service-types`,
+    `/api/dealerships/${dealership.dealershipId}/service-types`,
   );
 
   return {
-    dealershipId: catalog.dealershipId,
-    dealershipName: catalog.dealershipName,
+    dealershipId: dealership.dealershipId,
+    dealershipName: dealership.dealershipName,
     serviceTypes: serviceTypes
       .filter(st => st.isActive)
       .map(st => ({

@@ -88,13 +88,13 @@ describe('authenticated booking and me BFF routes', () => {
 
   it('forwards service-types request with auth', async () => {
     authenticatedBackendFetchMock
-      .mockResolvedValueOnce({ dealershipId: 'dealership-1', dealershipName: 'Test Dealership', serviceTypes: [] })
+      .mockResolvedValueOnce({ dealershipId: 'dealership-1', dealershipName: 'Test Dealership' })
       .mockResolvedValueOnce([]);
 
     const handler = (await import('../../server/api/booking/service-types.get')).default;
     const result = await handler(event);
 
-    expect(authenticatedBackendFetchMock).toHaveBeenNthCalledWith(1, event, '/api/booking/catalog');
+    expect(authenticatedBackendFetchMock).toHaveBeenNthCalledWith(1, event, '/api/booking/dealership');
     expect(authenticatedBackendFetchMock).toHaveBeenNthCalledWith(2, event, '/api/dealerships/dealership-1/service-types');
     expect(result).toEqual({
       dealershipId: 'dealership-1',

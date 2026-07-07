@@ -1,7 +1,7 @@
 # Frontend Integration — Progress Tracker
 
-**Last updated:** 2026-07-06  
-**Current phase:** F7 — Booking flow migration (deferred)  
+**Last updated:** 2026-07-07  
+**Current phase:** F7 — Customer self-service booking ✅ (F7e tests/docs in progress)  
 **Design doc:** [FRONTEND_INTEGRATION_PLAN.md](./FRONTEND_INTEGRATION_PLAN.md)  
 **Backend status:** [IMPLEMENTATION_PLAN.md](../../simple-appointment-scheduler-be/docs/IMPLEMENTATION_PLAN.md) (Phases 1–4 complete)
 
@@ -30,7 +30,7 @@ Use this document to track frontend integration work. Update checkboxes and the 
 | F4c | Customers & Vehicles | ✅ Done | Staff-accessible customer management |
 | F5 | Error handling & UX | ✅ Done | ProblemDetails mapping, 401/403 flows, validators, skeletons |
 | F6 | Tests & docs | ✅ Done | Unit tests, ARCHITECTURE.md / STORES.md updates |
-| F7 | Booking flow migration | ↪ Deferred | Replace Nitro mocks with .NET BFF proxies |
+| F7 | Customer self-service booking | ✅ Done | Auth + BFF + booking flow on .NET; mocks retired |
 | F8 | Appointment admin | ↪ Deferred | Blocked on backend Phase 5 lifecycle APIs |
 
 ---
@@ -138,19 +138,37 @@ Build in dependency order (mirrors backend Phase 3).
 
 ---
 
+## Phase F7 — Customer self-service booking ✅
+
+Sub-phases F7a–F7d landed the backend identity/self-service APIs, auth BFF, and booking migration. F7e added targeted tests and removed the redundant catalog endpoint.
+
+| Sub-phase | Scope | Status | Evidence |
+|-----------|-------|--------|----------|
+| F7a | User↔Customer link, register creates Customer | ✅ | `AuthService`, `GET /api/auth/me` |
+| F7b | `/api/me/*`, ownership checks, `servicetypes:read:customer` | ✅ | `MeController`, `AppointmentService` |
+| F7c | Auth BFF, register page, `authStore.register()` | ✅ | `server/api/auth/register.post.ts`, `app/pages/register.vue` |
+| F7d | Booking flow on real API, mock retirement | ✅ | `useBookingApi`, `bookingStore`, `server/api/booking/*` |
+| F7e | Tests + docs + catalog cleanup | ✅ | `test/composables/useBookingApi.spec.ts`, `test/stores/bookingStore.spec.ts` |
+
+| Task | Status | Evidence |
+|------|--------|----------|
+| BFF `GET /api/booking/availability` → .NET | ✅ | `server/api/booking/availability.get.ts` |
+| BFF `POST /api/booking/appointments` → .NET | ✅ | `server/api/booking/appointments.post.ts` |
+| BFF `GET /api/booking/service-types` (dealership + service types) | ✅ | `server/api/booking/service-types.get.ts` |
+| BFF `/api/me/*` routes | ✅ | `server/api/me/**` |
+| `useBookingApi` composable | ✅ | `app/composables/useBookingApi.ts` |
+| `bookingStore` on GUID types + seconds-from-midnight | ✅ | `app/stores/bookingStore.ts` |
+| `auth` middleware on booking pages | ✅ | `app/pages/booking-start.vue`, etc. |
+| Retire Nitro mock routes | ✅ | Removed `server/api/services.get.ts`, etc. |
+| Remove backend `/api/booking/catalog` | ✅ | Replaced by `GET /api/booking/dealership` |
+| `useBookingApi` / `bookingStore` unit tests | ✅ | `test/composables/useBookingApi.spec.ts`, `test/stores/bookingStore.spec.ts` |
+| Manual E2E smoke test | ⬜ | Register → book → summary against live stack |
+
+**Exit criteria:** Customer registers, books against .NET via BFF, and sees confirmation. Admin flow unchanged.
+
+---
+
 ## Deferred phases
-
-### F7 — Booking flow migration ↪
-
-| Task | Status | Notes |
-|------|--------|-------|
-| Proxy `GET /api/availability` to .NET | ↪ | Remap query params (`dealershipId`, `serviceTypeId`, `date`) |
-| Proxy `POST /api/appointments` to .NET | ↪ | Guid-based payload; customer/vehicle creation flow TBD |
-| Replace `fetchServices` with dealership service types | ↪ | Booking UX may need dealership selector |
-| Update `bookingStore` types | ↪ | `number` → `string` GUIDs |
-| Retire or gate mock `server/api/*` routes | ↪ | — |
-
-### F8 — Appointment admin ↪
 
 | Task | Status | Notes |
 |------|--------|-------|
@@ -162,8 +180,8 @@ Build in dependency order (mirrors backend Phase 3).
 
 ## Recommended next session
 
-1. **F7** — Migrate booking flow from Nitro mocks to .NET BFF proxies.
-2. Manual smoke test: login as admin → full CRUD round-trip on skills/dealerships/customers.
+1. **F8** — Appointment admin UI (blocked on backend Phase 5 lifecycle APIs).
+2. Manual smoke test: register customer → add vehicle → book appointment → confirm summary.
 
 ---
 

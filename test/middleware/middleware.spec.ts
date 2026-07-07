@@ -45,6 +45,11 @@ describe('auth middleware', () => {
     expect(navigateToMock).toHaveBeenCalledWith('/login?redirect=%2Fadmin%2Fdealerships');
   });
 
+  it('redirects unauthenticated users on booking routes to login', () => {
+    authMiddleware(createRoute('/booking-start', '/booking-start'), createRoute('/booking-start', '/booking-start'));
+    expect(navigateToMock).toHaveBeenCalledWith('/login?redirect=%2Fbooking-start');
+  });
+
   it('allows authenticated users on client', () => {
     const store = useAuthStore();
     store.expiresAt = futureExpiry;
