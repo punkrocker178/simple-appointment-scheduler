@@ -67,6 +67,5 @@ export interface AppointmentResponse {
   status: AppointmentStatus;
   cancellationReason?: string | null;
   startedAtUtc?: string | null;
-  completedAtUtc?: string | null;
-  cancelledAtUtc?: string | null;
+  closedAtUtc?: string | null;
 }
