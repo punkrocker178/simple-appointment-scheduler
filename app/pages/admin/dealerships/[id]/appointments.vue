@@ -1,24 +1,17 @@
 <script setup lang="ts">
-import { AppointmentStatus, type AppointmentResponse } from '~/types/api';
+import { AppointmentStatus, type AppointmentResponse, type Dealership } from '~/types/api';
+import type { CalendarAppointment, CalendarBayColumn } from '~/types/appointmentCalendar';
+import { addDays, startOfWeek, toDateString } from '~/utils/calendar';
 import { appointmentStatusColor, formatAppointmentStatus } from '~/utils/appointmentStatus';
 import { secondsToTimeString } from '~/utils/timeFormat';
 import CancelAppointmentDialog from '~/components/admin/CancelAppointmentDialog.vue';
+import AppointmentCalendarDayView from '~/components/admin/appointments/AppointmentCalendarDayView.vue';
+import AppointmentCalendarWeekView from '~/components/admin/appointments/AppointmentCalendarWeekView.vue';
 
 definePageMeta({
   layout: 'admin',
   middleware: ['auth', 'admin'],
 });
-
-interface AppointmentRow {
-  id: string;
-  time: string;
-  customer: string;
-  vehicle: string;
-  service: string;
-  technician: string;
-  bay: string;
-  status: AppointmentStatus;
-}
 
 const route = useRoute();
 const dealershipId = computed(() => route.params.id as string);
@@ -26,6 +19,7 @@ const dealershipId = computed(() => route.params.id as string);
 const {
   fetchDealerships,
   fetchDealershipAppointments,
+  fetchDealershipAppointmentsRange,
   fetchServiceTypes,
   fetchTechnicians,
   fetchServiceBays,
@@ -37,26 +31,43 @@ const {
 
 const { showError, showSuccess } = useAppNotification();
 
-const toDateString = (date: Date): string => {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
-
 const formatTimeRange = (secondsFromMidnight: number, durationMinutes: number): string => {
   const endSeconds = secondsFromMidnight + durationMinutes * 60;
   return `${secondsToTimeString(secondsFromMidnight)} – ${secondsToTimeString(endSeconds)}`;
 };
 
-const dealershipName = ref('');
+const dealerships = ref<Dealership[]>([]);
 const selectedDate = ref(toDateString(new Date()));
-const items = ref<AppointmentRow[]>([]);
+const selectedView = ref<'grid' | 'day' | 'week'>('grid');
+const items = ref<CalendarAppointment[]>([]);
+const bayColumns = ref<CalendarBayColumn[]>([]);
 const loading = ref(false);
 const actionLoadingId = ref<string | null>(null);
 const pageError = ref<string | null>(null);
 const cancelDialogOpen = ref(false);
 const cancelTargetId = ref<string | null>(null);
+
+const dealership = computed(() => dealerships.value.find(d => d.id === dealershipId.value));
+const dealershipName = computed(() => dealership.value?.name ?? 'Dealership');
+
+const weekStart = computed(() =>
+  toDateString(startOfWeek(new Date(selectedDate.value))),
+);
+
+const weekDays = computed<string[]>(() => {
+  const start = new Date(weekStart.value);
+  return Array.from({ length: 7 }, (_, i) => toDateString(addDays(start, i)));
+});
+
+const shiftDate = (direction: number): void => {
+  const base = new Date(selectedDate.value);
+  const days = selectedView.value === 'week' ? direction * 7 : direction;
+  selectedDate.value = toDateString(addDays(base, days));
+};
+
+const goToToday = (): void => {
+  selectedDate.value = toDateString(new Date());
+};
 
 const headers = [
   { title: 'Time', key: 'time' },
@@ -76,14 +87,18 @@ const buildRows = (
   serviceTypeMap: Map<string, string>,
   technicianMap: Map<string, string>,
   bayMap: Map<string, string>,
-): AppointmentRow[] =>
+): CalendarAppointment[] =>
   appointments.map(appointment => ({
     id: appointment.id,
+    bookingDate: appointment.bookingDate,
+    secondsFromMidnight: appointment.secondsFromMidnight,
+    durationMinutes: appointment.durationMinutes,
     time: formatTimeRange(appointment.secondsFromMidnight, appointment.durationMinutes),
     customer: customerMap.get(appointment.customerId) ?? appointment.customerId,
     vehicle: vehicleMap.get(appointment.vehicleId) ?? appointment.vehicleId,
     service: serviceTypeMap.get(appointment.serviceTypeId) ?? appointment.serviceTypeId,
     technician: technicianMap.get(appointment.technicianId) ?? appointment.technicianId,
+    serviceBayId: appointment.serviceBayId,
     bay: bayMap.get(appointment.serviceBayId) ?? appointment.serviceBayId,
     status: appointment.status,
   }));
@@ -92,16 +107,27 @@ const load = async (): Promise<void> => {
   loading.value = true;
   pageError.value = null;
   try {
-    const [dealerships, appointments, serviceTypes, technicians, bays, customers] = await Promise.all([
+    const appointments = selectedView.value === 'week'
+      ? await fetchDealershipAppointmentsRange(
+          dealershipId.value,
+          weekStart.value,
+          toDateString(addDays(new Date(weekStart.value), 6)),
+        )
+      : await fetchDealershipAppointments(dealershipId.value, selectedDate.value);
+
+    const [fetchedDealerships, serviceTypes, technicians, bays, customers] = await Promise.all([
       fetchDealerships(),
-      fetchDealershipAppointments(dealershipId.value, selectedDate.value),
       fetchServiceTypes(dealershipId.value),
       fetchTechnicians(dealershipId.value),
       fetchServiceBays(dealershipId.value),
       fetchCustomers(),
     ]);
 
-    dealershipName.value = dealerships.find(d => d.id === dealershipId.value)?.name ?? 'Dealership';
+    dealerships.value = fetchedDealerships;
+
+    bayColumns.value = bays
+      .map(b => ({ id: b.id, name: b.name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
 
     const uniqueCustomerIds = [...new Set(appointments.map(a => a.customerId))];
     const vehicleLists = await Promise.all(uniqueCustomerIds.map(id => fetchVehicles(id)));
@@ -196,7 +222,7 @@ const canComplete = (status: AppointmentStatus): boolean =>
 const canCancel = (status: AppointmentStatus): boolean =>
   status === AppointmentStatus.Scheduled || status === AppointmentStatus.InProgress;
 
-watch(selectedDate, () => {
+watch([selectedDate, selectedView], () => {
   load();
 });
 
@@ -225,14 +251,50 @@ onMounted(() => {
           {{ dealershipName }}
         </p>
       </div>
-      <v-text-field
-        v-model="selectedDate"
-        type="date"
-        label="Date"
-        density="compact"
-        hide-details
-        class="max-w-48"
-      />
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2">
+          <v-btn
+            icon="mdi-chevron-left"
+            variant="text"
+            @click="shiftDate(-1)"
+          />
+          <v-btn
+            variant="text"
+            @click="goToToday"
+          >
+            Today
+          </v-btn>
+          <v-btn
+            icon="mdi-chevron-right"
+            variant="text"
+            @click="shiftDate(1)"
+          />
+        </div>
+        <v-text-field
+          v-model="selectedDate"
+          type="date"
+          label="Date"
+          density="compact"
+          hide-details
+          class="max-w-48"
+        />
+        <v-btn-toggle
+          v-model="selectedView"
+          density="compact"
+          variant="outlined"
+          divided
+        >
+          <v-btn value="grid">
+            Grid
+          </v-btn>
+          <v-btn value="day">
+            Day
+          </v-btn>
+          <v-btn value="week">
+            Week
+          </v-btn>
+        </v-btn-toggle>
+      </div>
     </div>
 
     <v-alert
@@ -245,6 +307,7 @@ onMounted(() => {
     </v-alert>
 
     <AdminDataTable
+      v-if="selectedView === 'grid'"
       :items="items"
       :headers="headers"
       :loading="loading"
@@ -299,6 +362,24 @@ onMounted(() => {
         </div>
       </template>
     </AdminDataTable>
+
+    <AppointmentCalendarDayView
+      v-else-if="selectedView === 'day'"
+      :bays="bayColumns"
+      :open-seconds="dealership?.openSecondsFromMidnight ?? 28_800"
+      :close-seconds="dealership?.closeSecondsFromMidnight ?? 61_200"
+      :appointments="items"
+      :loading="loading"
+    />
+
+    <AppointmentCalendarWeekView
+      v-else
+      :days="weekDays"
+      :open-seconds="dealership?.openSecondsFromMidnight ?? 28_800"
+      :close-seconds="dealership?.closeSecondsFromMidnight ?? 61_200"
+      :appointments="items"
+      :loading="loading"
+    />
 
     <CancelAppointmentDialog
       v-model:open="cancelDialogOpen"

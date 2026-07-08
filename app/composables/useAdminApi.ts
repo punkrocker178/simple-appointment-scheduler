@@ -6,7 +6,6 @@
  */
 import type {
   AppointmentResponse,
-  AppointmentStatus,
   CancelAppointmentRequest,
   CreateCustomerRequest,
   CreateDealershipRequest,

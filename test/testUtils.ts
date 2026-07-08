@@ -218,6 +218,8 @@ export const vuetifyStubs = {
   'v-radio-group': { template: '<div><slot /></div>', props: ['modelValue'] },
   'v-btn': { template: '<button><slot /></button>', props: ['color', 'variant', 'loading', 'disabled'] },
   'v-dialog': { template: '<div v-if="modelValue"><slot /></div>', props: ['modelValue'] },
+  'v-progress-linear': { template: '<div class="progress-linear" />', props: ['indeterminate', 'color'] },
+  'v-chip': { template: '<span class="chip"><slot /></span>', props: ['color', 'size', 'variant'] },
 };
 
 /**
