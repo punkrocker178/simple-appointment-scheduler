@@ -13,6 +13,10 @@ interface Props {
   loading?: boolean;
 }
 
+interface StyledCalendarAppointment extends CalendarAppointment {
+  style: { top: string; height: string };
+}
+
 const props = withDefaults(defineProps<Props>(), {
   loading: false,
 });
@@ -21,10 +25,20 @@ const slotHeight = 48;
 const headerHeight = 40;
 const slots = computed(() => generateTimeSlots(props.openSeconds, props.closeSeconds));
 
-const appointmentsForBay = (bayId: string) =>
-  props.appointments
-    .filter(a => a.serviceBayId === bayId)
-    .map(appointment => ({
+const appointmentsByBay = computed(() => {
+  const byBay: Record<string, StyledCalendarAppointment[]> = {};
+
+  for (const bay of props.bays) {
+    byBay[bay.id] = [];
+  }
+
+  for (const appointment of props.appointments) {
+    const bucket = byBay[appointment.serviceBayId];
+    if (!bucket) {
+      continue;
+    }
+
+    bucket.push({
       ...appointment,
       style: getAppointmentStyle(
         appointment.secondsFromMidnight,
@@ -32,7 +46,11 @@ const appointmentsForBay = (bayId: string) =>
         props.openSeconds,
         slotHeight,
       ),
-    }));
+    });
+  }
+
+  return byBay;
+});
 </script>
 
 <template>
@@ -76,7 +94,7 @@ const appointmentsForBay = (bayId: string) =>
             color="primary"
           />
           <AppointmentCalendarCard
-            v-for="appointment in appointmentsForBay(bay.id)"
+            v-for="appointment in appointmentsByBay[bay.id]"
             :key="appointment.id"
             :appointment="appointment"
             :style="appointment.style"

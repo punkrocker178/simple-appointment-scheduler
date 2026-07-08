@@ -13,6 +13,10 @@ interface Props {
   loading?: boolean;
 }
 
+interface StyledCalendarAppointment extends CalendarAppointment {
+  style: { top: string; height: string };
+}
+
 const props = withDefaults(defineProps<Props>(), {
   loading: false,
 });
@@ -21,10 +25,20 @@ const slotHeight = 48;
 const headerHeight = 40;
 const slots = computed(() => generateTimeSlots(props.openSeconds, props.closeSeconds));
 
-const appointmentsForDay = (day: string) =>
-  props.appointments
-    .filter(a => a.bookingDate === day)
-    .map(appointment => ({
+const appointmentsByDay = computed(() => {
+  const byDay: Record<string, StyledCalendarAppointment[]> = {};
+
+  for (const day of props.days) {
+    byDay[day] = [];
+  }
+
+  for (const appointment of props.appointments) {
+    const bucket = byDay[appointment.bookingDate];
+    if (!bucket) {
+      continue;
+    }
+
+    bucket.push({
       ...appointment,
       style: getAppointmentStyle(
         appointment.secondsFromMidnight,
@@ -32,7 +46,11 @@ const appointmentsForDay = (day: string) =>
         props.openSeconds,
         slotHeight,
       ),
-    }));
+    });
+  }
+
+  return byDay;
+});
 </script>
 
 <template>
@@ -76,7 +94,7 @@ const appointmentsForDay = (day: string) =>
             color="primary"
           />
           <AppointmentCalendarCard
-            v-for="appointment in appointmentsForDay(day)"
+            v-for="appointment in appointmentsByDay[day]"
             :key="appointment.id"
             :appointment="appointment"
             :style="appointment.style"
