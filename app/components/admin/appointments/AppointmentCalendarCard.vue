@@ -11,16 +11,27 @@ interface Props {
 
 const props = defineProps<Props>();
 
+const appointment = computed(() => props.appointment);
+
+const cardStyle = computed(() => ({
+  top: props.style.top,
+  height: props.style.height,
+}));
+
 const isCancelled = computed(
-  () => props.appointment.status === AppointmentStatus.Cancelled,
+  () => appointment.value.status === AppointmentStatus.Cancelled,
 );
+
+const statusColor = computed(() => appointmentStatusColor(appointment.value.status));
+
+const statusLabel = computed(() => formatAppointmentStatus(appointment.value.status));
 </script>
 
 <template>
   <div
     class="absolute left-1 right-1 overflow-hidden rounded border border-gray-200 bg-white p-2 text-xs shadow-sm"
     :class="{ 'opacity-50 grayscale': isCancelled }"
-    :style="props.style"
+    :style="cardStyle"
   >
     <div class="font-semibold text-gray-900">
       {{ appointment.time }}
@@ -35,12 +46,12 @@ const isCancelled = computed(
       {{ appointment.service }} | {{ appointment.technician }}
     </div>
     <v-chip
-      :color="appointmentStatusColor(appointment.status)"
+      :color="statusColor"
       size="x-small"
       variant="tonal"
       class="mt-1"
     >
-      {{ formatAppointmentStatus(appointment.status) }}
+      {{ statusLabel }}
     </v-chip>
   </div>
 </template>

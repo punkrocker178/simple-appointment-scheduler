@@ -28,6 +28,15 @@ describe('calendar utilities', () => {
     expect(slots.length).toBe((61_200 - 28_800) / (SLOT_INTERVAL_MINUTES * 60));
   });
 
+  it('throws when closeSeconds is not after openSeconds', () => {
+    expect(() => generateTimeSlots(28_800, 28_000)).toThrow(
+      'closeSeconds (28000) must be greater than openSeconds (28800)',
+    );
+    expect(() => generateTimeSlots(28_800, 28_800)).toThrow(
+      'closeSeconds (28800) must be greater than openSeconds (28800)',
+    );
+  });
+
   it('calculates appointment style for a 60-minute appointment at 08:30', () => {
     const style = getAppointmentStyle(30_600, 60, 28_800, 48);
     expect(style.top).toBe('48px');

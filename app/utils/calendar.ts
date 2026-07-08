@@ -24,6 +24,12 @@ export function generateTimeSlots(
   closeSeconds: number,
   intervalMinutes = SLOT_INTERVAL_MINUTES,
 ): number[] {
+  if (closeSeconds <= openSeconds) {
+    throw new Error(
+      `closeSeconds (${closeSeconds}) must be greater than openSeconds (${openSeconds})`,
+    );
+  }
+
   const intervalSeconds = intervalMinutes * 60;
   const slots: number[] = [];
   for (let s = openSeconds; s < closeSeconds; s += intervalSeconds) {
