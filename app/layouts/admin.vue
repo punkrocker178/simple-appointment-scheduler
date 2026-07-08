@@ -55,8 +55,16 @@ const handleLogout = async (): Promise<void> => {
       </div>
 
       <v-list density="compact" nav class="py-2">
-        <v-list-item v-for="item in visibleNavItems" :key="item.to" :to="item.to" :prepend-icon="item.icon"
-          :title="item.title" :active="isActive(item.to)" rounded="lg" class="mx-2" />
+        <v-list-item
+          v-for="item in visibleNavItems"
+          :key="item.to"
+          :to="item.to"
+          :prepend-icon="item.icon"
+          :title="item.title"
+          :active="isActive(item.to)"
+          rounded="lg"
+          class="mx-2"
+        />
       </v-list>
     </v-navigation-drawer>
 
