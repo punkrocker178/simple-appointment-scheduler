@@ -1,4 +1,4 @@
-import { AppointmentStatus } from '~/types/api';
+import type { AppointmentStatus } from '~/types/api';
 
 export interface CalendarAppointment {
   id: string;
