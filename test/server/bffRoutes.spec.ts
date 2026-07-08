@@ -176,6 +176,19 @@ describe('authenticated booking and me BFF routes', () => {
     );
   });
 
+  it('forwards dealership appointment range query with auth', async () => {
+    getRouterParamMock.mockReturnValue('dealership-1');
+    getQueryMock.mockReturnValue({ from: '2026-07-01', to: '2026-07-07' });
+
+    const handler = (await import('../../server/api/admin/dealerships/[dealershipid]/appointments.get')).default;
+    await handler(event);
+
+    expect(authenticatedBackendFetchMock).toHaveBeenCalledWith(
+      event,
+      '/api/dealerships/dealership-1/appointments?from=2026-07-01&to=2026-07-07',
+    );
+  });
+
   it('forwards appointment status patch with auth', async () => {
     getRouterParamMock.mockReturnValue('apt-1');
     readBodyMock.mockResolvedValue({ status: 1 });

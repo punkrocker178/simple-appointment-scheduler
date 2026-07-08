@@ -155,6 +155,13 @@ export function useAdminApi() {
   ): Promise<AppointmentResponse[]> =>
     adminFetch(`/api/admin/dealerships/${dealershipId}/appointments?date=${date}`);
 
+  const fetchDealershipAppointmentsRange = (
+    dealershipId: string,
+    from: string,
+    to: string,
+  ): Promise<AppointmentResponse[]> =>
+    adminFetch(`/api/admin/dealerships/${dealershipId}/appointments?from=${from}&to=${to}`);
+
   const updateAppointmentStatus = (
     id: string,
     body: UpdateAppointmentStatusRequest,
@@ -194,6 +201,7 @@ export function useAdminApi() {
     updateVehicle,
     deleteVehicle,
     fetchDealershipAppointments,
+    fetchDealershipAppointmentsRange,
     updateAppointmentStatus,
     cancelAppointment,
   };

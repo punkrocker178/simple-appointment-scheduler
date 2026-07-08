@@ -100,6 +100,20 @@ describe('useAdminApi', () => {
     expect(appointments).toHaveLength(1);
   });
 
+  it('fetches dealership appointments for a date range', async () => {
+    const mockFetch = vi.mocked(global.$fetch);
+    mockFetch.mockResolvedValueOnce([{ id: 'apt-1', status: 0 }]);
+
+    const { fetchDealershipAppointmentsRange } = withSetup(() => useAdminApi());
+    const appointments = await fetchDealershipAppointmentsRange('dealership-1', '2026-07-01', '2026-07-07');
+
+    expect(mockFetch).toHaveBeenCalledWith(
+      '/api/admin/dealerships/dealership-1/appointments?from=2026-07-01&to=2026-07-07',
+      undefined,
+    );
+    expect(appointments).toHaveLength(1);
+  });
+
   it('updates appointment status', async () => {
     const mockFetch = vi.mocked(global.$fetch);
     mockFetch.mockResolvedValueOnce({ id: 'apt-1', status: 1 });
