@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { AppointmentResponse, AppointmentStatus } from '~/types/api';
+import { AppointmentStatus, type AppointmentResponse } from '~/types/api';
 import { appointmentStatusColor, formatAppointmentStatus } from '~/utils/appointmentStatus';
 import { secondsToTimeString } from '~/utils/timeFormat';
-import { useDebounceFn } from '@vueuse/core';
+import CancelAppointmentDialog from '~/components/admin/CancelAppointmentDialog.vue';
 
 definePageMeta({
   layout: 'admin',
@@ -31,7 +31,11 @@ const {
   fetchServiceBays,
   fetchCustomers,
   fetchVehicles,
+  updateAppointmentStatus,
+  cancelAppointment,
 } = useAdminApi();
+
+const { showError, showSuccess } = useAppNotification();
 
 const toDateString = (date: Date): string => {
   const year = date.getFullYear();
@@ -49,7 +53,10 @@ const dealershipName = ref('');
 const selectedDate = ref(toDateString(new Date()));
 const items = ref<AppointmentRow[]>([]);
 const loading = ref(false);
+const actionLoadingId = ref<string | null>(null);
 const pageError = ref<string | null>(null);
+const cancelDialogOpen = ref(false);
+const cancelTargetId = ref<string | null>(null);
 
 const headers = [
   { title: 'Time', key: 'time' },
@@ -59,6 +66,7 @@ const headers = [
   { title: 'Technician', key: 'technician' },
   { title: 'Bay', key: 'bay' },
   { title: 'Status', key: 'status' },
+  { title: 'Actions', key: 'actions', sortable: false },
 ];
 
 const buildRows = (
@@ -128,14 +136,69 @@ const load = async (): Promise<void> => {
   }
 };
 
-const debouncedLoad = useDebounceFn(async () => {
-  await load();
-}, 400);
-
-const handleDateSelect = (date: string): void => {
-  selectedDate.value = date;
-  debouncedLoad();
+const runAction = async (id: string, action: () => Promise<void>): Promise<void> => {
+  actionLoadingId.value = id;
+  try {
+    await action();
+    await load();
+  }
+  catch (err) {
+    showError(err instanceof Error ? err.message : 'Action failed.');
+  }
+  finally {
+    actionLoadingId.value = null;
+  }
 };
+
+const startAppointment = (id: string): void => {
+  void runAction(id, async () => {
+    await updateAppointmentStatus(id, { status: AppointmentStatus.InProgress });
+    showSuccess('Appointment started.');
+  });
+};
+
+const completeAppointment = (id: string): void => {
+  void runAction(id, async () => {
+    await updateAppointmentStatus(id, { status: AppointmentStatus.Completed });
+    showSuccess('Appointment completed.');
+  });
+};
+
+const openCancelDialog = (id: string): void => {
+  cancelTargetId.value = id;
+  cancelDialogOpen.value = true;
+};
+
+const closeCancelDialog = (): void => {
+  cancelDialogOpen.value = false;
+  cancelTargetId.value = null;
+};
+
+const confirmCancel = (reason: string): void => {
+  if (!cancelTargetId.value) {
+    return;
+  }
+
+  const id = cancelTargetId.value;
+  void runAction(id, async () => {
+    await cancelAppointment(id, { reason });
+    showSuccess('Appointment cancelled.');
+    closeCancelDialog();
+  });
+};
+
+const canStart = (status: AppointmentStatus): boolean =>
+  status === AppointmentStatus.Scheduled;
+
+const canComplete = (status: AppointmentStatus): boolean =>
+  status === AppointmentStatus.InProgress;
+
+const canCancel = (status: AppointmentStatus): boolean =>
+  status === AppointmentStatus.Scheduled || status === AppointmentStatus.InProgress;
+
+watch(selectedDate, () => {
+  load();
+});
 
 onMounted(() => {
   load();
@@ -163,13 +226,12 @@ onMounted(() => {
         </p>
       </div>
       <v-text-field
-        :model-value="selectedDate"
+        v-model="selectedDate"
         type="date"
         label="Date"
         density="compact"
         hide-details
         class="max-w-48"
-        @update:model-value="handleDateSelect"
       />
     </div>
 
@@ -199,6 +261,50 @@ onMounted(() => {
           {{ formatAppointmentStatus(value) }}
         </v-chip>
       </template>
+      <template #item.actions="{ item }">
+        <div class="flex gap-2 py-1">
+          <v-btn
+            v-if="canStart(item.status)"
+            size="small"
+            variant="tonal"
+            color="primary"
+            :loading="actionLoadingId === item.id"
+            :disabled="actionLoadingId !== null && actionLoadingId !== item.id"
+            @click="startAppointment(item.id)"
+          >
+            Start
+          </v-btn>
+          <v-btn
+            v-if="canComplete(item.status)"
+            size="small"
+            variant="tonal"
+            color="success"
+            :loading="actionLoadingId === item.id"
+            :disabled="actionLoadingId !== null && actionLoadingId !== item.id"
+            @click="completeAppointment(item.id)"
+          >
+            Complete
+          </v-btn>
+          <v-btn
+            v-if="canCancel(item.status)"
+            size="small"
+            variant="tonal"
+            color="error"
+            :loading="actionLoadingId === item.id"
+            :disabled="actionLoadingId !== null && actionLoadingId !== item.id"
+            @click="openCancelDialog(item.id)"
+          >
+            Cancel
+          </v-btn>
+        </div>
+      </template>
     </AdminDataTable>
+
+    <CancelAppointmentDialog
+      v-model:open="cancelDialogOpen"
+      :loading="actionLoadingId !== null"
+      @confirm="confirmCancel"
+      @cancel="closeCancelDialog"
+    />
   </div>
 </template>

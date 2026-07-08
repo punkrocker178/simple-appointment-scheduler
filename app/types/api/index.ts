@@ -24,6 +24,8 @@ export type {
   AvailabilityResponse,
   BookingVehicle,
   CreateAppointmentRequest,
+  UpdateAppointmentStatusRequest,
+  CancelAppointmentRequest,
   AppointmentResponse,
 } from './booking';
 
