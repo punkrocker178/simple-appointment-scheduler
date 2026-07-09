@@ -1,4 +1,4 @@
-import { authenticatedBackendFetch } from '../../../../utils/authenticatedBackendFetch';
+import { authenticatedBackendFetch } from '../../../../../utils/authenticatedBackendFetch';
 
 export default defineEventHandler(async (event) => {
   const customerId = getRouterParam(event, 'customerid');

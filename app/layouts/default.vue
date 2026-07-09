@@ -1,10 +1,12 @@
 <script setup lang="ts">
 const route = useRoute();
-const { email, isAuthenticated, logout } = useAuth();
+const { email, role, isAuthenticated, logout } = useAuth();
 
 const showNav = computed((): boolean => {
   return !['/login', '/register'].includes(route.path);
 });
+
+const isCustomer = computed((): boolean => role.value === 'User');
 
 const handleLogout = async (): Promise<void> => {
   await logout();
@@ -28,6 +30,22 @@ const handleLogout = async (): Promise<void> => {
       <v-spacer />
 
       <template v-if="isAuthenticated">
+        <template v-if="isCustomer">
+          <NuxtLink
+            to="/booking-start"
+            class="text-sm text-gray-700 hover:text-gray-900 mr-4"
+            data-testid="nav-book-link"
+          >
+            Book
+          </NuxtLink>
+          <NuxtLink
+            to="/my-appointments"
+            class="text-sm text-gray-700 hover:text-gray-900 mr-4"
+            data-testid="nav-my-appointments-link"
+          >
+            My appointments
+          </NuxtLink>
+        </template>
         <span
           class="text-sm text-gray-600 mr-4 hidden sm:inline"
           data-testid="nav-user-email"

@@ -11,8 +11,23 @@
       <div class="mb-2"><strong>Customer:</strong> {{ customerDisplay }}</div>
     </div>
 
-    <div class="pt-6">
-      <v-btn color="primary" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg" @click="$emit('new-booking')">Done</v-btn>
+    <div class="pt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+      <v-btn
+        color="primary"
+        class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+        data-testid="success-done-btn"
+        @click="$emit('new-booking')"
+      >
+        Done
+      </v-btn>
+      <v-btn
+        variant="outlined"
+        class="px-6 py-2 rounded-lg"
+        data-testid="success-view-appointments-btn"
+        @click="$emit('view-appointments')"
+      >
+        View my appointments
+      </v-btn>
     </div>
   </v-card>
 </template>
@@ -25,6 +40,7 @@ import { bookingDateToLocalDate, formatBookingDate, formatBookingTime, slotEndSe
 
 defineEmits<{
   'new-booking': []
+  'view-appointments': []
 }>();
 
 const props = withDefaults(defineProps<{

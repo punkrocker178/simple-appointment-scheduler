@@ -13,6 +13,10 @@ const handleNewBooking = (): void => {
   store.resetBooking();
   navigateTo('/booking-start');
 };
+
+const handleViewAppointments = (): void => {
+  navigateTo('/my-appointments');
+};
 </script>
 
 <template>
@@ -25,6 +29,7 @@ const handleNewBooking = (): void => {
       :vehicle="store.selectedVehicle"
       :customer="store.customerProfile"
       @new-booking="handleNewBooking"
+      @view-appointments="handleViewAppointments"
     />
   </div>
 </template>
