@@ -1,9 +1,9 @@
 import { authenticatedBackendFetch } from '../../../utils/authenticatedBackendFetch';
 
 export default defineEventHandler(async (event) => {
-  const id = getRouterParam(event, 'id');
+  const dealershipId = getRouterParam(event, 'dealershipid');
   const body = await readBody(event);
-  return authenticatedBackendFetch(event, `/api/dealerships/${id}`, {
+  return authenticatedBackendFetch(event, `/api/dealerships/${dealershipId}`, {
     method: 'PUT',
     body,
   });

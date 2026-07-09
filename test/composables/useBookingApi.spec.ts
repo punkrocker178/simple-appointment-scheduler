@@ -92,6 +92,18 @@ describe('useBookingApi', () => {
     expect(result.id).toBe('apt-456');
   });
 
+  it('fetches my appointments from the me BFF route', async () => {
+    const mockFetch = vi.mocked(global.$fetch);
+    const response = [createMockAppointmentResponse()];
+    mockFetch.mockResolvedValueOnce(response);
+
+    const { fetchMyAppointments } = withSetup(() => useBookingApi());
+    const result = await fetchMyAppointments();
+
+    expect(mockFetch).toHaveBeenCalledWith('/api/me/appointments', undefined);
+    expect(result).toEqual(response);
+  });
+
   it('maps vehicle create response to booking vehicle shape', async () => {
     const mockFetch = vi.mocked(global.$fetch);
     mockFetch.mockResolvedValueOnce({

@@ -58,6 +58,9 @@ export function useBookingApi() {
   const fetchMyVehicles = async (): Promise<BookingVehicle[]> =>
     bookingFetch<BookingVehicle[]>('/api/me/vehicles');
 
+  const fetchMyAppointments = async (): Promise<AppointmentResponse[]> =>
+    bookingFetch<AppointmentResponse[]>('/api/me/appointments');
+
   const createVehicle = async (payload: CreateVehicleRequest): Promise<BookingVehicle> => {
     const vehicle = await bookingFetch<Vehicle>('/api/me/vehicles', {
       method: 'POST',
@@ -77,6 +80,7 @@ export function useBookingApi() {
     createAppointment,
     fetchMyCustomer,
     fetchMyVehicles,
+    fetchMyAppointments,
     createVehicle,
   };
 }

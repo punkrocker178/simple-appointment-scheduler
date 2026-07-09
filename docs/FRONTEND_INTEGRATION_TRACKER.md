@@ -162,6 +162,7 @@ Sub-phases F7a–F7d landed the backend identity/self-service APIs, auth BFF, an
 | Retire Nitro mock routes | ✅ | Removed `server/api/services.get.ts`, etc. |
 | Remove backend `/api/booking/catalog` | ✅ | Replaced by `GET /api/booking/dealership` |
 | `useBookingApi` / `bookingStore` unit tests | ✅ | `test/composables/useBookingApi.spec.ts`, `test/stores/bookingStore.spec.ts` |
+| Customer My Appointments page | ✅ | `app/pages/my-appointments.vue`, `GET /api/me/appointments` via `fetchMyAppointments` |
 | Manual E2E smoke test | ⬜ | Register → book → summary against live stack |
 
 **Exit criteria:** Customer registers, books against .NET via BFF, and sees confirmation. Admin flow unchanged.
@@ -181,8 +182,9 @@ Sub-phases F7a–F7d landed the backend identity/self-service APIs, auth BFF, an
 
 ## Recommended next session
 
-1. Manual smoke test: admin starts/completes/cancels appointment on daily schedule grid.
+1. Manual smoke test: customer books → summary → My appointments list shows enriched labels.
 2. Optional: customer self-service cancel on `/api/me/appointments`.
+3. Manual smoke test: admin starts/completes/cancels appointment on daily schedule grid.
 
 ---
 

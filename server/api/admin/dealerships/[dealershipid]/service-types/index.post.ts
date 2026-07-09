@@ -1,9 +1,9 @@
-import { authenticatedBackendFetch } from '../../../../utils/authenticatedBackendFetch';
+import { authenticatedBackendFetch } from '../../../../../utils/authenticatedBackendFetch';
 
 export default defineEventHandler(async (event) => {
   const dealershipId = getRouterParam(event, 'dealershipid');
   const body = await readBody(event);
-  return authenticatedBackendFetch(event, `/api/dealerships/${dealershipId}/technicians`, {
+  return authenticatedBackendFetch(event, `/api/dealerships/${dealershipId}/service-types`, {
     method: 'POST',
     body,
   });
