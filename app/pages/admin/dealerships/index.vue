@@ -167,16 +167,18 @@ onMounted(() => {
       <template #item.actions="{ item }">
         <div class="flex items-center gap-1 flex-wrap">
           <v-btn
-            icon="mdi-pencil"
+            prepend-icon="mdi-pencil"
             variant="text"
             size="small"
             @click="openEdit(item)"
-          />
+          >
+            Edit
+          </v-btn>
           <v-btn
             :to="`/admin/dealerships/${item.id}/service-types`"
             variant="text"
             size="small"
-            prepend-icon="mdi-wrench-clock"
+            prepend-icon="mdi-wrench"
           >
             Types
           </v-btn>

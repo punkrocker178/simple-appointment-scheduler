@@ -40,18 +40,21 @@ const handleLogout = async (): Promise<void> => {
   await logout();
   await navigateTo('/login');
 };
+
+const drawerOpen = ref(false);
+
+const toggleDrawer = () => {
+  drawerOpen.value = !drawerOpen.value;
+};
 </script>
 
 <template>
   <v-app theme="light">
-    <v-navigation-drawer permanent width="200" class="border-r border-gray-200">
-      <div class="p-4 border-b border-gray-200">
-        <h1 class="text-lg font-bold text-gray-900">
+    <v-navigation-drawer v-model="drawerOpen" width="200" class="border-gray-200">
+      <div class="p-4 border-b border-t border-gray-200 h-[65px]">
+        <h1 class="text-lg font-bold text-gray-900 m-0">
           Universal Scheduler
         </h1>
-        <p class="text-xs text-gray-500 mt-1">
-          Admin
-        </p>
       </div>
 
       <v-list density="compact" nav class="py-2">
@@ -61,6 +64,9 @@ const handleLogout = async (): Promise<void> => {
     </v-navigation-drawer>
 
     <v-app-bar flat border class="bg-white">
+      <template v-slot:prepend>
+        <v-app-bar-nav-icon class="block lg:hidden" @click="toggleDrawer" />
+      </template>
       <v-spacer />
       <div class="flex items-center gap-4 px-4">
         <div class="text-right hidden sm:block">
