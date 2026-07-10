@@ -48,6 +48,7 @@ describe('my-appointments page', () => {
     pinia = setupPinia();
     setupFetchMock();
     navigateToMock.mockReset();
+    clearNuxtData('my-appointments');
     vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
