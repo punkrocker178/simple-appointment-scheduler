@@ -24,7 +24,7 @@ export function getPostLoginRedirect(
     = queryRedirect === '/admin' || queryRedirect.startsWith('/admin/');
   const isStaff = role === 'Admin' || role === 'Staff';
 
-  if (isStaff && !isAdminPath) {
+  if ((isStaff && !isAdminPath) || (role === 'User' && isAdminPath)) {
     return defaultPath;
   }
   return queryRedirect;
