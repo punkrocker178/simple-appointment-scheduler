@@ -272,13 +272,13 @@ onMounted(() => {
       ]"
       class="px-0 mb-4" />
 
-    <div class="flex flex-column mb-6">
+    <div class="flex flex-col mb-6">
       <h1 class="text-3xl font-bold text-gray-900">Appointments</h1>
       <div class="flex justify-between">
         <p class="text-gray-600">
           {{ dealershipName }}
         </p>
-        <div class="flex-column md:flex-row flex items-center gap-4">
+        <div class="flex-col md:flex-row flex items-center gap-4">
           <div class="flex items-center gap-2">
             <v-btn
               icon="mdi-chevron-left"
